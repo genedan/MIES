@@ -14,7 +14,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="Claim">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="280" y="140"/>
+	<position x="160" y="260"/>
 	<column name="claim_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -22,5 +22,68 @@ CAUTION: Do not modify this file unless you know what you are doing.
 		<columns names="claim_id" ref-type="src-columns"/>
 	</constraint>
 </table>
+
+<table name="Claimant">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="160" y="80"/>
+	<column name="claimant_id" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="Claimant_pk" type="pk-constr" table="public.&quot;Claimant&quot;">
+		<columns names="claimant_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<relationship name="Claimant_has_many_Claim" type="rel1n"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#5585bc"
+	 src-table="public.&quot;Claimant&quot;"
+	 dst-table="public.&quot;Claim&quot;"
+	 src-required="false" dst-required="false"/>
+
+<table name="Adjuster">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="160" y="500"/>
+	<column name="adjuster_id" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="Adjuster_pk" type="pk-constr" table="public.&quot;Adjuster&quot;">
+		<columns names="adjuster_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<relationship name="Adjuster_has_many_Claim" type="rel1n"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#240610"
+	 src-table="public.&quot;Adjuster&quot;"
+	 dst-table="public.&quot;Claim&quot;"
+	 src-required="false" dst-required="false"/>
+
+<table name="Policy">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="600" y="140"/>
+	<column name="policy_id" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="Policy_pk" type="pk-constr" table="public.&quot;Policy&quot;">
+		<columns names="policy_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<relationship name="Policy_has_many_Claim" type="rel1n"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#5efc94"
+	 src-table="public.&quot;Policy&quot;"
+	 dst-table="public.&quot;Claim&quot;"
+	 src-required="false" dst-required="false"/>
 
 </dbmodel>

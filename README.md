@@ -1,6 +1,8 @@
 # MIES
 Minature Insurance Economic Simulator
 
+![](claim_schema.png)
+
 ## Introduction
 
 The purpose of MIES is to simulate, with the appropriate balance between detail and abstraction, various economic equilibria that result between the interactions between insurance firms, policyholders, and regulators.

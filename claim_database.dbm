@@ -111,7 +111,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="Catastrophe">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="700" y="420"/>
+	<position x="700" y="500"/>
 	<column name="catastrophe_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -127,6 +127,27 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 custom-color="#c55241"
 	 src-table="public.&quot;Catastrophe&quot;"
 	 dst-table="public.&quot;Claim&quot;"
+	 src-required="false" dst-required="false"/>
+
+<table name="Recovery">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="820" y="180"/>
+	<column name="recovery_transaciton_id" not-null="true">
+		<type name="smallint" length="0"/>
+	</column>
+	<constraint name="Recovery_pk" type="pk-constr" table="public.&quot;Recovery&quot;">
+		<columns names="recovery_transaciton_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<relationship name="Claim_has_many_Recovery" type="rel1n"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#3aec61"
+	 src-table="public.&quot;Claim&quot;"
+	 dst-table="public.&quot;Recovery&quot;"
 	 src-required="false" dst-required="false"/>
 
 </dbmodel>

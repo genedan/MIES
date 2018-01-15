@@ -11,7 +11,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="public" fill-color="#e1e1e1" sql-disabled="true">
 </schema>
 
-<table name="Claim">
+<table name="Claim" hide-ext-attribs="true">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="280" y="280"/>
@@ -26,7 +26,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="Claimant">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="160" y="80"/>
+	<position x="120" y="60"/>
 	<column name="claimant_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -47,7 +47,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="Adjuster">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="80" y="540"/>
+	<position x="80" y="520"/>
 	<column name="adjuster_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -68,7 +68,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="Policy">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="500" y="60"/>
+	<position x="580" y="40"/>
 	<column name="policy_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -90,7 +90,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<schema name="public"/>
 	<role name="postgres"/>
 	<comment><![CDATA[Holds the claim payment transactions]]></comment>
-	<position x="560" y="600"/>
+	<position x="520" y="680"/>
 	<column name="claim_payment_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -111,7 +111,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="Catastrophe">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="700" y="500"/>
+	<position x="640" y="560"/>
 	<column name="catastrophe_id" not-null="true">
 		<type name="bigint" length="0"/>
 	</column>
@@ -132,7 +132,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <table name="Recovery">
 	<schema name="public"/>
 	<role name="postgres"/>
-	<position x="820" y="180"/>
+	<position x="740" y="400"/>
 	<column name="recovery_transaciton_id" not-null="true">
 		<type name="smallint" length="0"/>
 	</column>
@@ -149,5 +149,63 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	 src-table="public.&quot;Claim&quot;"
 	 dst-table="public.&quot;Recovery&quot;"
 	 src-required="false" dst-required="false"/>
+
+<table name="Underwriter">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="580" y="180"/>
+	<column name="underwriter_id" not-null="true">
+		<type name="bigint" length="0"/>
+	</column>
+	<constraint name="Underwriter_pk" type="pk-constr" table="public.&quot;Underwriter&quot;">
+		<columns names="underwriter_id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<relationship name="Underwriter_has_many_Policy" type="rel1n"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#4af318"
+	 src-table="public.&quot;Underwriter&quot;"
+	 dst-table="public.&quot;Policy&quot;"
+	 src-required="false" dst-required="false"/>
+
+<table name="Adjuster_Limit">
+	<schema name="public"/>
+	<role name="postgres"/>
+	<position x="80" y="700"/>
+	<column name="Limit_Amount" not-null="true">
+		<type name="double precision" length="0"/>
+	</column>
+	<column name="Limit_Effective_Dt" not-null="true">
+		<type name="date" length="0"/>
+	</column>
+	<column name="LOB_cd" not-null="true">
+		<type name="smallint" length="0"/>
+	</column>
+	<constraint name="Adjuster_Limit_pk" type="pk-constr" table="public.&quot;Adjuster_Limit&quot;">
+		<columns names="Limit_Effective_Dt,LOB_cd" ref-type="src-columns"/>
+	</constraint>
+
+	<customidxs object-type="column">
+		<object name="adjuster_id_Adjuster" index="2"/>
+	</customidxs>
+
+	<customidxs object-type="constraint">
+		<object name="Adjuster_fk" index="0"/>
+	</customidxs>
+</table>
+
+<relationship name="Adjuster_has_many_Adjuster_Limit" type="rel1n"
+	 src-col-pattern="{sc}_{st}"
+	 pk-pattern="{dt}_pk" uq-pattern="{dt}_uq"
+	 src-fk-pattern="{st}_fk"
+	 custom-color="#57ca70"
+	 src-table="public.&quot;Adjuster&quot;"
+	 dst-table="public.&quot;Adjuster_Limit&quot;"
+	 src-required="false" dst-required="false">
+	<special-pk-cols indexes="0"/>
+</relationship>
 
 </dbmodel>

@@ -1,0 +1,3 @@
+[submodule "MIES.wiki"]
+	path = MIES.wiki
+	url = git://github.com/genedan/MIES.wiki

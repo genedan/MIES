@@ -6,4 +6,4 @@
 
 //People should be able to be grouped into larger classes, such as households, departments, cities, etc.
 
-def person(){}
+class person(){}

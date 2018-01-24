@@ -142,6 +142,10 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="recovery_transaciton_id" not-null="true">
 		<type name="smallint" length="0"/>
 	</column>
+	<column name="recovery_transaction_cd">
+		<type name="smallint" length="0"/>
+		<comment><![CDATA[specifies whether transaction is salvage or subrogation]]></comment>
+	</column>
 	<constraint name="Recovery_pk" type="pk-constr" table="public.&quot;Recovery&quot;">
 		<columns names="recovery_transaciton_id" ref-type="src-columns"/>
 	</constraint>

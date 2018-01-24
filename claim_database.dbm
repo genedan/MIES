@@ -11,7 +11,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 <schema name="public" fill-color="#e1e1e1" sql-disabled="true">
 </schema>
 
-<table name="Claim" hide-ext-attribs="true">
+<table name="Claim">
 	<schema name="public"/>
 	<role name="postgres"/>
 	<position x="280" y="280"/>
@@ -29,6 +29,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<position x="120" y="60"/>
 	<column name="claimant_id" not-null="true">
 		<type name="bigint" length="0"/>
+	</column>
+	<column name="claimant_first_name" not-null="true">
+		<type name="character varying" length="0"/>
+	</column>
+	<column name="claimant_last_name">
+		<type name="character varying" length="0"/>
 	</column>
 	<constraint name="Claimant_pk" type="pk-constr" table="public.&quot;Claimant&quot;">
 		<columns names="claimant_id" ref-type="src-columns"/>
@@ -178,15 +184,12 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="Limit_Amount" not-null="true">
 		<type name="double precision" length="0"/>
 	</column>
-	<column name="Limit_Effective_Dt" not-null="true">
+	<column name="Limit_Effective_Dt">
 		<type name="date" length="0"/>
 	</column>
-	<column name="LOB_cd" not-null="true">
+	<column name="LOB_cd">
 		<type name="smallint" length="0"/>
 	</column>
-	<constraint name="Adjuster_Limit_pk" type="pk-constr" table="public.&quot;Adjuster_Limit&quot;">
-		<columns names="Limit_Effective_Dt,LOB_cd" ref-type="src-columns"/>
-	</constraint>
 
 	<customidxs object-type="column">
 		<object name="adjuster_id_Adjuster" index="2"/>

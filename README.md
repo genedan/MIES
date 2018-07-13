@@ -1,5 +1,5 @@
 # MIES
-Minature Insurance Economic Simulator
+Miniature Insurance Economic Simulator
 
 ![](claim_schema.png)
 

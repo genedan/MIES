@@ -13,7 +13,7 @@ simple_claims = random.sample(range(1000,10000), 10)
 simple_claims = [(x,) for x in simple_claims]
 print(simple_claims)
 
-def insert_claim_list(vendor_list):
+def insert_claim_list(claim_list):
     """ insert multiple claims into the Claim table  """
     sql = "INSERT INTO Claim(loss_amount) VALUES(%s)"
     conn = None
@@ -25,7 +25,7 @@ def insert_claim_list(vendor_list):
         # create a new cursor
         cur = conn.cursor()
         # execute the INSERT statement
-        cur.executemany(sql,vendor_list)
+        cur.executemany(sql,claim_list)
         # commit the changes to the database
         conn.commit()
         # close communication with the database

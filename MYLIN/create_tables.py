@@ -10,7 +10,7 @@ def create_tables():
     commands = (
         """
         CREATE TABLE Claim (
-            vendor_id SERIAL PRIMARY KEY,
+            claim_id SERIAL PRIMARY KEY,
             loss_amount NUMERIC NOT NULL
         )
         """,

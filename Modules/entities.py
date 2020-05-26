@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 import parameters as pm
 import datetime
 import statsmodels
@@ -133,6 +134,7 @@ class Broker:
             free_business['effective_date'] = curr_date + datetime.timedelta(1)
             free_business['expiration_date'] = curr_date.replace(curr_date.year + 1)
 
+
             for company in companies.company_id:
                 new_business = free_business[free_business['company_id'] == company]
                 new_business = new_business[[
@@ -153,6 +155,7 @@ class Broker:
             for arg in args:
                 free_business['effective_date'] = curr_date + datetime.timedelta(1)
                 free_business['expiration_date'] = curr_date.replace(curr_date.year + 1)
+                free_business['rands'] = np.random.uniform(len(free_business))
                 free_business['quote_' + str(arg.id)] = arg.pricing_model.predict(free_business)
 
             free_business['premium'] = free_business[free_business.columns[pd.Series(
@@ -231,6 +234,9 @@ class Insurer:
             'education_level']
         ).agg({'severity': 'sum'}).reset_index()
 
+        book['rands'] = np.random.uniform(size=len(book))
+        book['sevresp'] = book['severity']
+
         self.pricing_model = smf.glm(
             formula=pricing_formula,
             data=book,
@@ -270,4 +276,16 @@ class Insurer:
             'education_level'
         ]).agg({'severity': 'sum'}).reset_index()
 
-        return book
+    def in_force(
+            self,
+            policy,
+            date
+    ):
+
+        in_force = pd.read_sql(
+            self.session.query(policy).filter(policy.company_id == int(self.id)).filter(
+                date >= policy.effective_date).filter(date <= policy.expiration_date).statement,
+            self.connection
+        )
+
+        return in_force

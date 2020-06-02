@@ -8,6 +8,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 from scipy.stats import gamma
+from scipy.stats import pareto
 from numpy.random import poisson
 from random import choices
 
@@ -27,19 +28,26 @@ class God:
         profession = pm.draw_prof(n_people)
         health_status = pm.draw_hs(n_people)
         education_level = pm.draw_el(n_people)
+        income = pareto.rvs(
+            b=1,
+            scale=pm.person_params['income'],
+            size=n_people,
+        )
 
         population = pd.DataFrame(list(
             zip(
                 age_class,
                 profession,
                 health_status,
-                education_level
+                education_level,
+                income
             )
         ), columns=[
             'age_class',
             'profession',
             'health_status',
-            'education_level'
+            'education_level',
+            'income'
         ])
 
         population.to_sql(

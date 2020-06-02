@@ -17,6 +17,7 @@ class Person(Base):
     profession = Column(String)
     health_status = Column(String)
     education_level = Column(String)
+    income = Column(Float)
 
     policy = relationship(
         "Policy",
@@ -33,11 +34,13 @@ class Person(Base):
                "profession='%s', " \
                "health_status='%s', " \
                "education_level='%s'" \
+               "income='%s'" \
                ")>" % (
                 self.age_class,
                 self.profession,
                 self.health_status,
-                self.education_level
+                self.education_level,
+                self.income
                 )
 
 

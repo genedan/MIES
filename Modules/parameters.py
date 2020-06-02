@@ -4,7 +4,8 @@ person_params = {
     'age_class': ['Y', 'M', 'E'],
     'profession': ['A', 'B', 'C'],
     'health_status': ['P', 'F', 'G'],
-    'education_level': ['H', 'U', 'P']
+    'education_level': ['H', 'U', 'P'],
+    'income': 30000
 }
 
 age_params = {

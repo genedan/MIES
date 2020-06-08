@@ -1,7 +1,8 @@
 import plotly.graph_objects as go
 import numpy as np
-from econtools import budget
+
 from plotly.offline import plot
+
 
 class CobbDouglas:
 
@@ -17,39 +18,34 @@ class CobbDouglas:
 
         return x1_quantity, x2_quantity, optimal_utility
 
-    def trace(self, k):
-        x_values = np.arange(.1, 15,.1)
+    def trace(self, k, m):
+        x_values = np.arange(.01, m * 1.5,.01)
         y_values = (k/(x_values ** self.c)) ** (1/self.d)
 
         return {'x': x_values,
                 'y': y_values,
                 'mode': 'lines',
-                'name': str(k)}
+                'name': 'Utility: ' + str(int(round(k)))}
+
+    def show_plot(self, k=5, m=10):
+        fig = go.Figure(data=self.trace(k, m))
+        fig.add_trace(self.trace(k * 1.5, m))
+        fig.add_trace(self.trace(k * .5, m))
+        fig['layout'].update({
+            'title': 'Cobb Douglas Utility',
+            'title_x': 0.5,
+            'xaxis': {
+                'range': [0, m * 1.5],
+                'title': 'Amount of Good X'
+            },
+            'yaxis': {
+                'range': [0, m * 1.5],
+                'title': 'Amount of Good Y'
+            },
+            'showlegend': True
+        })
+
+        plot(fig)
+        return fig
 
 
-mycobb = CobbDouglas(.5, .5)
-
-my_bundle = mycobb.optimal_bundle(1,1,10)
-
-all_other = budget.Good(1, name='All Other Goods')
-insurance = budget.Good(1, name='Insurance')
-my_budget = budget.Budget(insurance, all_other, income=10, name="My Budget")
-
-myplot = go.Figure()
-myplot.add_trace(my_budget.get_line())
-myplot.add_trace(mycobb.trace(my_bundle[2]))
-myplot.add_trace(mycobb.trace(3))
-myplot.add_trace(mycobb.trace(8))
-
-myplot['layout'].update({
-    'xaxis': {
-        'range': [0, 15]
-    },
-    'yaxis': {
-        'range': [0,15]
-    }
-})
-
-plot(myplot)
-
-my_budget.show_plot()

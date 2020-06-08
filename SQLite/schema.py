@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
-class Person(Base):
+class PersonTable(Base):
     __tablename__ = 'person'
 
     person_id = Column(
@@ -18,6 +18,8 @@ class Person(Base):
     health_status = Column(String)
     education_level = Column(String)
     income = Column(Float)
+    cobb_c = Column(Float)
+    cobb_d = Column(Float)
 
     policy = relationship(
         "Policy",
@@ -29,18 +31,22 @@ class Person(Base):
     )
 
     def __repr__(self):
-        return "<Person(" \
+        return "<PersonTable(" \
                "age_class='%s', " \
                "profession='%s', " \
                "health_status='%s', " \
                "education_level='%s'" \
                "income='%s'" \
+               "cobb_c='%s'" \
+               "cobb_d='%s'" \
                ")>" % (
                 self.age_class,
                 self.profession,
                 self.health_status,
                 self.education_level,
-                self.income
+                self.income,
+                self.cobb_c,
+                self.cobb_d
                 )
 
 
@@ -93,7 +99,7 @@ class Policy(Base):
         back_populates="policy"
     )
     person = relationship(
-        "Person",
+        "PersonTable",
         back_populates="policy"
     )
     event = relationship(
@@ -132,7 +138,7 @@ class Event(Base):
     severity = Column(Float)
 
     person = relationship(
-        "Person",
+        "PersonTable",
         back_populates="event"
     )
     policy = relationship(

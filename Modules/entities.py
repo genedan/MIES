@@ -6,11 +6,17 @@ import datetime
 import statsmodels
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import plotly.graph_objects as go
+
 
 from scipy.stats import gamma
 from scipy.stats import pareto
 from numpy.random import poisson
 from random import choices
+from econtools.utility import CobbDouglas
+from econtools.budget import Good, Budget
+from plotly.offline import plot
+
 
 
 # The supreme entity, overseer of all space, time, matter and energy
@@ -33,6 +39,8 @@ class God:
             scale=pm.person_params['income'],
             size=n_people,
         )
+        cobb_c = [pm.person_params['cobb_c']] * n_people
+        cobb_d = [pm.person_params['cobb_d']] * n_people
 
         population = pd.DataFrame(list(
             zip(
@@ -40,14 +48,18 @@ class God:
                 profession,
                 health_status,
                 education_level,
-                income
+                income,
+                cobb_c,
+                cobb_d
             )
         ), columns=[
             'age_class',
             'profession',
             'health_status',
             'education_level',
-            'income'
+            'income',
+            'cobb_c',
+            'cobb_d'
         ])
 
         population.to_sql(
@@ -297,3 +309,93 @@ class Insurer:
         )
 
         return in_force
+
+
+class Person:
+    def __init__(
+        self,
+        session,
+        engine,
+        person,
+        person_id
+    ):
+        self.session = session
+        self.connection = engine.connect()
+        self.engine = engine
+        self.id = person_id
+
+        query = self.session.query(person).filter(
+                person.person_id == int(self.id)
+            ).statement
+
+        self.data = pd.read_sql(
+            query,
+            self.connection
+        )
+        self.income = self.data['income'].loc[0]
+
+        self.utility = CobbDouglas(
+            c=self.data['cobb_c'].loc[0],
+            d=self.data['cobb_d'].loc[0]
+        )
+
+        self.policy = None
+        self.budget = None
+        self.premium = None
+        self.optimal_bundle = None
+        self.consumption_figure = None
+
+    def get_policy(
+        self,
+        policy,
+        policy_id
+    ):
+        query = self.session.query(policy).filter(
+            policy.policy_id == int(policy_id)
+        ).statement
+
+        self.policy = pd.read_sql(
+            query,
+            self.connection
+        )
+        self.premium = self.policy['premium'].loc[0]
+
+    def get_budget(self):
+        all_other = Good(1, name='All Other Goods')
+        if self.policy is None:
+            insurance = Good(4000, name='Insurance')
+        else:
+            insurance = Good(self.premium, name='Insurance')
+        self.budget = Budget(insurance, all_other, income=self.income, name='Budget')
+
+    def get_consumption(self):
+        self.optimal_bundle = self.utility.optimal_bundle(
+            p1=self.premium,
+            p2=1,
+            m=self.income
+        )
+
+    def get_consumption_figure(self):
+        fig = go.Figure()
+        fig.add_trace(self.budget.get_line())
+        fig.add_trace(self.utility.trace(k=self.optimal_bundle[2], m=self.income / self.premium * 1.5))
+        fig.add_trace(self.utility.trace(k=self.optimal_bundle[2] * 1.5, m=self.income / self.premium * 1.5))
+        fig.add_trace(self.utility.trace(k=self.optimal_bundle[2] * .5, m=self.income / self.premium * 1.5))
+
+        fig['layout'].update({
+            'title': 'Consumption for Person ' + str(self.id),
+            'title_x': 0.5,
+            'xaxis': {
+                'title': 'Amount of Insurance',
+                'range': [0, self.income / self.premium * 1.5]
+            },
+            'yaxis': {
+                'title': 'Amount of All Other Goods',
+                'range': [0, self.income * 1.5]
+            }
+        })
+        self.consumption_figure = fig
+        return fig
+
+    def show_consumption(self):
+        plot(self.consumption_figure)

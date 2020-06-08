@@ -5,7 +5,9 @@ person_params = {
     'profession': ['A', 'B', 'C'],
     'health_status': ['P', 'F', 'G'],
     'education_level': ['H', 'U', 'P'],
-    'income': 30000
+    'income': 30000,
+    'cobb_c': .1,
+    'cobb_d': .9
 }
 
 age_params = {

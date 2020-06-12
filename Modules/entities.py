@@ -345,6 +345,8 @@ class Person:
         self.optimal_bundle = None
         self.consumption_figure = None
         self.offer = None
+        self.engels = None
+        self.demand = None
 
     def get_policy(
         self,
@@ -409,6 +411,30 @@ class Person:
 
         self.offer = o
 
+    def get_engels(self):
+        # only works for Cobb Douglas right now
+
+        def e(m):
+            return self.utility.optimal_bundle(
+                p1=self.premium,
+                p2=1,
+                m=m
+            )[0]
+
+        self.engels = e
+
+    def get_demand(self):
+        # only works for Cobb Douglas right now
+
+        def d(p):
+            return self.utility.optimal_bundle(
+                p1=p,
+                p2=1,
+                m=self.income
+            )[0]
+
+        self.demand = d
+
     def show_consumption(self):
         plot(self.consumption_figure)
 
@@ -426,4 +452,61 @@ class Person:
 
         fig = self.consumption_figure
         fig.add_trace(offer_trace)
+        plot(fig)
+
+    def show_engels(self):
+        engels_frame = pd.DataFrame(columns=['income'])
+        engels_frame['income'] = np.arange(0, self.income * 2, 1000)
+        engels_frame['x1'] = engels_frame['income'].apply(self.engels)
+
+        engels_trace = {
+            'x': engels_frame['x1'],
+            'y': engels_frame['income'],
+            'mode': 'lines',
+            'name': 'Engels Curve'
+        }
+
+        fig = go.Figure()
+        fig.add_trace(engels_trace)
+
+        fig['layout'].update({
+            'title': 'Engels Curve for Person ' + str(self.id),
+            'title_x': 0.5,
+            'xaxis': {
+                'title': 'Amount of Insurance'
+            },
+            'yaxis': {
+                'title': 'Income'
+            }
+        })
+
+        plot(fig)
+
+    def show_demand(self):
+        demand_frame = pd.DataFrame(columns=['price'])
+        demand_frame['price'] = np.arange(self.premium/100, self.premium * 2, self.premium/100)
+        demand_frame['x1'] = demand_frame['price'].apply(self.demand)
+
+        demand_trace = {
+            'x': demand_frame['x1'],
+            'y': demand_frame['price'],
+            'mode': 'lines',
+            'name': 'Demand Curve'
+        }
+
+        fig = go.Figure()
+        fig.add_trace(demand_trace)
+
+        fig['layout'].update({
+            'title': 'Demand Curve for Person ' + str(self.id),
+            'title_x': 0.5,
+            'xaxis': {
+                'range': [0, self.income / self.premium * 2],
+                'title': 'Amount of Insurance'
+            },
+            'yaxis': {
+                'title': 'Premium'
+            }
+        })
+
         plot(fig)

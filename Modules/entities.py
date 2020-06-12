@@ -344,6 +344,7 @@ class Person:
         self.premium = None
         self.optimal_bundle = None
         self.consumption_figure = None
+        self.offer = None
 
     def get_policy(
         self,
@@ -397,5 +398,32 @@ class Person:
         self.consumption_figure = fig
         return fig
 
+    def get_offer(self):
+        # only works for Cobb Douglas right now
+        def o(m):
+            return self.utility.optimal_bundle(
+                p1=self.premium,
+                p2=1,
+                m=m
+            )
+
+        self.offer = o
+
     def show_consumption(self):
         plot(self.consumption_figure)
+
+    def show_offer(self):
+        offer_frame = pd.DataFrame(columns=['income'])
+        offer_frame['income'] = np.arange(0, self.income * 2, 1000)
+        offer_frame['x1'], offer_frame['x2'] = self.offer(offer_frame['income'])[:2]
+
+        offer_trace = {
+            'x': offer_frame['x1'],
+            'y': offer_frame['x2'],
+            'mode': 'lines',
+            'name': 'Offer Curve'
+        }
+
+        fig = self.consumption_figure
+        fig.add_trace(offer_trace)
+        plot(fig)

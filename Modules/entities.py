@@ -345,7 +345,7 @@ class Person:
         self.optimal_bundle = None
         self.consumption_figure = None
         self.offer = None
-        self.engels = None
+        self.engel = None
         self.demand = None
 
     def get_policy(
@@ -411,7 +411,7 @@ class Person:
 
         self.offer = o
 
-    def get_engels(self):
+    def get_engel(self):
         # only works for Cobb Douglas right now
 
         def e(m):
@@ -421,7 +421,7 @@ class Person:
                 m=m
             )[0]
 
-        self.engels = e
+        self.engel = e
 
     def get_demand(self):
         # only works for Cobb Douglas right now
@@ -453,24 +453,25 @@ class Person:
         fig = self.consumption_figure
         fig.add_trace(offer_trace)
         plot(fig)
+        return fig
 
-    def show_engels(self):
-        engels_frame = pd.DataFrame(columns=['income'])
-        engels_frame['income'] = np.arange(0, self.income * 2, 1000)
-        engels_frame['x1'] = engels_frame['income'].apply(self.engels)
+    def show_engel(self):
+        engel_frame = pd.DataFrame(columns=['income'])
+        engel_frame['income'] = np.arange(0, self.income * 2, 1000)
+        engel_frame['x1'] = engel_frame['income'].apply(self.engel)
 
-        engels_trace = {
-            'x': engels_frame['x1'],
-            'y': engels_frame['income'],
+        engel_trace = {
+            'x': engel_frame['x1'],
+            'y': engel_frame['income'],
             'mode': 'lines',
-            'name': 'Engels Curve'
+            'name': 'Engel Curve'
         }
 
         fig = go.Figure()
-        fig.add_trace(engels_trace)
+        fig.add_trace(engel_trace)
 
         fig['layout'].update({
-            'title': 'Engels Curve for Person ' + str(self.id),
+            'title': 'Engel Curve for Person ' + str(self.id),
             'title_x': 0.5,
             'xaxis': {
                 'title': 'Amount of Insurance'
@@ -481,6 +482,7 @@ class Person:
         })
 
         plot(fig)
+        return fig
 
     def show_demand(self):
         demand_frame = pd.DataFrame(columns=['price'])
@@ -510,3 +512,4 @@ class Person:
         })
 
         plot(fig)
+        return fig

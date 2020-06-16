@@ -6,6 +6,7 @@ person_params = {
     'health_status': ['P', 'F', 'G'],
     'education_level': ['H', 'U', 'P'],
     'income': 30000,
+    'wealth': 150000,
     'cobb_c': .1,
     'cobb_d': .9
 }

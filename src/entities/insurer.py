@@ -1,33 +1,56 @@
 import pandas as pd
 import numpy as np
+import schema.insco as insco
 import statsmodels
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import sqlalchemy as sa
+
+from sqlalchemy.orm import sessionmaker
+from schema.universe import Company
 
 
 class Insurer:
     def __init__(
-        self, session,
-        engine,
+        self,
         starting_capital,
-        company,
         company_name
     ):
+        self.engine =sa.create_engine(
+            'sqlite:///db/' + company_name + '.db',
+            echo=True
+        )
+        session = sessionmaker(bind=self.engine)
+        insco.Base.metadata.create_all(self.engine)
+        self.session = session()
+        self.connection = self.engine.connect()
         self.capital = starting_capital
-        self.session = session
-        self.connection = engine.connect()
         self.company_name = company_name
+
+        self.pricing_model = None
+        self.id = self.register()
+
+    def register(self):
+        # populate universe company record
         insurer_table = pd.DataFrame([[self.capital, self.company_name]], columns=['capital', 'name'])
+        universe_engine = sa.create_engine(
+            'sqlite:///universe.db',
+            echo=True
+        )
+        session = sessionmaker(bind=universe_engine)
+        universe_session = session()
+        universe_connection = universe_engine.connect()
         insurer_table.to_sql(
             'company',
-            self.connection,
+            universe_connection,
             index=False,
             if_exists='append'
         )
-        self.id = pd.read_sql(self.session.query(company.company_id).
-                              filter(company.name == self.company_name).
-                              statement, self.connection).iat[0, 0]
-        self.pricing_model = ''
+        self.id = pd.read_sql(universe_session.query(Company.company_id).
+                              filter(Company.name == self.company_name).
+                              statement, universe_connection).iat[0, 0]
+        universe_connection.close()
+        return self.id
 
     def price_book(
         self,

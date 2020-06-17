@@ -1,17 +1,27 @@
-import os
 import pandas as pd
 import parameters as pm
+import sqlalchemy as sa
+import schema.universe as universe
+import shutil
 
+from sqlalchemy.orm import sessionmaker
 from scipy.stats import gamma
 from scipy.stats import pareto
 from numpy.random import poisson
 
+
 # The supreme entity, overseer of all space, time, matter and energy
 class God:
 
-    def __init__(self, session, engine):
-        self.session = session
-        self.connection = engine.connect()
+    def __init__(self):
+        self.engine = sa.create_engine(
+            'sqlite:///db/universe.db',
+            echo=True
+        )
+        session = sessionmaker(bind=self.engine)
+        universe.Base.metadata.create_all(self.engine)
+        self.session = session()
+        self.connection = self.engine.connect()
 
     def make_person(self):
         self.make_population(1)
@@ -92,10 +102,6 @@ class God:
         )
         return population
 
-    def annihilate(self, db):
-        os.remove(db)
-
-
-
-
-
+    def annihilate(self):
+        self.connection.close()
+        shutil.rmtree('db')

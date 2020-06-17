@@ -34,7 +34,7 @@ class Insurer:
         # populate universe company record
         insurer_table = pd.DataFrame([[self.capital, self.company_name]], columns=['capital', 'name'])
         universe_engine = sa.create_engine(
-            'sqlite:///universe.db',
+            'sqlite:///db/universe.db',
             echo=True
         )
         session = sessionmaker(bind=universe_engine)

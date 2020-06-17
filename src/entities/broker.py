@@ -1,18 +1,16 @@
 import pandas as pd
 import numpy as np
 import datetime
+
+import sqlalchemy as sa
 from random import choices
+from schema.universe import Company
+from utilities.connections import connect_universe
+
+from sqlalchemy.orm import sessionmaker
 
 
 class Broker:
-
-    def __init__(
-            self,
-            session,
-            engine
-    ):
-        self.session = session
-        self.connection = engine.connect()
 
     def identify_free_business(
             self,
@@ -91,3 +89,9 @@ class Broker:
                 if_exists='append'
             )
             return free_business
+
+    def identify_companies(self):
+        session, connection = connect_universe()
+        companies_query = session.query(Company.name).statement
+        companies = pd.read_sql(companies_query, connection)
+        return companies

@@ -1,5 +1,7 @@
 from random import choices
 
+INITIAL_PREMIUM = 4000
+
 person_params = {
     'age_class': ['Y', 'M', 'E'],
     'profession': ['A', 'B', 'C'],

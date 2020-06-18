@@ -13,9 +13,6 @@ class Policy(Base):
         Integer,
         primary_key=True
     )
-    company_id = Column(
-        Integer
-    )
     person_id = Column(Integer)
     effective_date = Column(Date)
     expiration_date = Column(Date)

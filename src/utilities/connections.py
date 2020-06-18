@@ -8,8 +8,15 @@ def connect_universe():
         'sqlite:///db/universe.db',
         echo=True
     )
-    session = sessionmaker(bind=engine)
-    universe.Base.metadata.create_all(engine)
-    session = session()
+    session = sessionmaker(bind=engine)()
+    connection = engine.connect()
+    return session, connection
+
+
+def connect_company(company_name):
+    engine = sa.create_engine(
+        'sqlite:///db/' + company_name + '.db',
+        echo=True)
+    session = sessionmaker(bind=engine)()
     connection = engine.connect()
     return session, connection

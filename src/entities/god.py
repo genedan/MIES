@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import parameters as pm
 import sqlalchemy as sa
@@ -14,6 +15,8 @@ from numpy.random import poisson
 class God:
 
     def __init__(self):
+        if not os.path.exists('db'):
+            os.makedirs('db')
         self.engine = sa.create_engine(
             'sqlite:///db/universe.db',
             echo=True

@@ -10,6 +10,7 @@ from scipy.stats import gamma
 from scipy.stats import pareto
 from numpy.random import poisson
 
+from utilities.queries import query_population
 
 # The supreme entity, overseer of all space, time, matter and energy
 class God:
@@ -71,16 +72,10 @@ class God:
 
     def smite(
         self,
-        person,
-        policy,
         ev_date
     ):
 
-        population = pd.read_sql(self.session.query(person, policy.policy_id).outerjoin(policy).filter(
-                policy.effective_date <= ev_date
-            ).filter(
-                policy.expiration_date >= ev_date
-            ).statement, self.connection)
+        population = query_population()
 
         population['lambda'] = pm.get_poisson_lambda(population)
         population['frequency'] = poisson(population['lambda'])
@@ -91,12 +86,12 @@ class God:
         population = population.loc[population.index.repeat(population.frequency)].copy()
 
         population['gamma_scale'] = pm.get_gamma_scale(population)
-        population['severity'] = gamma.rvs(
+        population['ground_up_loss'] = gamma.rvs(
             a=2,
             scale=population['gamma_scale']
         )
 
-        population = population[['event_date', 'person_id', 'policy_id', 'severity']]
+        population = population[['event_date', 'person_id', 'ground_up_loss']]
         population.to_sql(
             'event',
             self.connection,

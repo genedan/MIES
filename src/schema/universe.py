@@ -74,14 +74,28 @@ class Event(Base):
         primary_key=True
     )
     event_date = Column(Date)
+    report_date = Column(Date)
     person_id = Column(
         Integer,
         ForeignKey('person.person_id')
     )
-    severity = Column(Float)
+    ground_up_loss = Column(Float)
 
     person = relationship(
         "PersonTable",
         back_populates="event"
     )
+
+    def __repr(self):
+        return "<Event(" \
+               "event_date='%s'," \
+               "report_date='%s'," \
+               "person_id='%s', " \
+               "ground_up_loss='%s'" \
+               ")>" % (
+                self.event_date,
+                self.report_date,
+                self.person_id,
+                self.ground_up_loss
+                )
 

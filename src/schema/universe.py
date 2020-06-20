@@ -53,15 +53,15 @@ class Company(Base):
         Integer,
         primary_key=True
     )
-    name = Column(String)
+    company_name = Column(String)
     capital = Column(Float)
 
     def __repr(self):
         return "<Company(" \
-               "name='%s'," \
+               "company_name='%s'," \
                " capital='%s'" \
                ")>" % (
-                self.name,
+                self.company_name,
                 self.capital
                 )
 

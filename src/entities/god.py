@@ -82,6 +82,8 @@ class God:
 
         population = population[population['frequency'] != 0]
         population['event_date'] = ev_date
+        # claims reported immediately for now
+        population['report_date'] = ev_date
 
         population = population.loc[population.index.repeat(population.frequency)].copy()
 
@@ -91,7 +93,7 @@ class God:
             scale=population['gamma_scale']
         )
 
-        population = population[['event_date', 'person_id', 'ground_up_loss']]
+        population = population[['event_date', 'report_date', 'person_id', 'ground_up_loss']]
         population.to_sql(
             'event',
             self.connection,

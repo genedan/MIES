@@ -41,4 +41,23 @@ class Claim(Base):
         Integer,
         ForeignKey('policy.policy_id')
     )
-    loss = Column(Float)
+    person_id = Column(Integer)
+    event_id = Column(Integer)
+    occurrence_date = Column(Date)
+    report_date = Column(Date)
+    incurred_loss = Column(Float)
+
+    def __repr__(self):
+        return "<Claim(policy_id ='%s'," \
+               "person_id ='%s', " \
+               "event_id='%s', " \
+               "occurrence_date='%s'," \
+               "report_date='%s'," \
+               "incurred_loss='%s')>" % (
+                self.policy_id,
+                self.person_id,
+                self.event_id,
+                self.occurence_date,
+                self.report_date,
+                self.incurred_loss
+                )

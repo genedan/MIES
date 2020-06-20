@@ -15,7 +15,7 @@ def connect_universe():
 
 def connect_company(company_name):
     engine = sa.create_engine(
-        'sqlite:///db/' + company_name + '.db',
+        'sqlite:///db/companies/' + company_name + '.db',
         echo=True)
     session = sessionmaker(bind=engine)()
     connection = engine.connect()

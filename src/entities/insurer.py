@@ -1,10 +1,12 @@
-import pandas as pd
 import numpy as np
-import schema.insco as insco
+import os
+import pandas as pd
 import statsmodels
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import sqlalchemy as sa
+
+import schema.insco as insco
 
 from sqlalchemy.orm import sessionmaker
 from schema.universe import Company
@@ -16,8 +18,10 @@ class Insurer:
         starting_capital,
         company_name
     ):
-        self.engine =sa.create_engine(
-            'sqlite:///db/' + company_name + '.db',
+        if not os.path.exists('db/companies'):
+            os.makedirs('db/companies')
+        self.engine = sa.create_engine(
+            'sqlite:///db/companies/' + company_name + '.db',
             echo=True
         )
         session = sessionmaker(bind=self.engine)
@@ -32,7 +36,7 @@ class Insurer:
 
     def register(self):
         # populate universe company record
-        insurer_table = pd.DataFrame([[self.capital, self.company_name]], columns=['capital', 'name'])
+        insurer_table = pd.DataFrame([[self.capital, self.company_name]], columns=['capital', 'company_name'])
         universe_engine = sa.create_engine(
             'sqlite:///db/universe.db',
             echo=True
@@ -47,7 +51,7 @@ class Insurer:
             if_exists='append'
         )
         self.id = pd.read_sql(universe_session.query(Company.company_id).
-                              filter(Company.name == self.company_name).
+                              filter(Company.company_name == self.company_name).
                               statement, universe_connection).iat[0, 0]
         universe_connection.close()
         return self.id

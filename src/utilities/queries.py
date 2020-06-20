@@ -1,11 +1,67 @@
 import pandas as pd
 
-from schema.universe import PersonTable
-from utilities.connections import connect_universe
+from schema.universe import Company, PersonTable
+from schema.insco import Policy
+from utilities.connections import(
+    connect_universe,
+    connect_company)
 
 
 def query_population():
     session, connection = connect_universe()
     query = session.query(PersonTable).statement
     population = pd.read_sql(query, connection)
+    connection.close()
     return population
+
+
+def query_company():
+    session, connection = connect_universe()
+    companies_query = session.query(Company).statement
+    companies = pd.read_sql(
+        companies_query,
+        connection
+    )
+    connection.close()
+    return companies
+
+
+def query_all_policies():
+    companies = query_company()
+    policies = pd.DataFrame()
+
+    for index, row in companies.iterrows():
+        company_id = row['company_id']
+        company_name = row['company_name']
+        session, connection = connect_company(company_name)
+        query = session.query(Policy).statement
+        policy_c = pd.read_sql(
+            query,
+            connection
+        )
+        policy_c['company_id'] = company_id
+        policy_c['company_name'] = company_name
+        policies = policies.append(policy_c)
+        connection.close()
+
+    return policies
+
+
+def get_company_names():
+    session, connection = connect_universe()
+    companies_query = session.query(Company.company_name).statement
+    companies = pd.read_sql(
+        companies_query,
+        connection
+    )
+    connection.close()
+    return list(companies['company_name'])
+
+
+def get_company_ids():
+    session, connection = connect_universe()
+    companies_query = session.query(Company.company_id).statement
+    companies = pd.read_sql(companies_query, connection)
+    connection.close()
+    return list(companies['company_id'])
+

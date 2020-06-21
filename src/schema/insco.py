@@ -1,9 +1,41 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Date, Float
+from sqlalchemy import Column, Integer, Date, Float, String
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 
 Base = declarative_base()
+
+
+class Customer(Base):
+    __tablename__ = 'customer'
+
+    person_id = Column(
+        Integer,
+        primary_key=True
+    )
+    age_class = Column(String)
+    profession = Column(String)
+    health_status = Column(String)
+    education_level = Column(String)
+
+    policy = relationship(
+        "Policy",
+        back_populates="customer"
+    )
+
+    def __repr__(self):
+        return "<Customer(" \
+               "age_class='%s', " \
+               "profession='%s', " \
+               "health_status='%s', " \
+               "education_level='%s'" \
+               ")>" % (
+                   self.age_class,
+                   self.profession,
+                   self.health_status,
+                   self.education_level,
+               )
 
 
 class Policy(Base):
@@ -13,10 +45,18 @@ class Policy(Base):
         Integer,
         primary_key=True
     )
-    person_id = Column(Integer)
+    person_id = Column(
+        Integer,
+        ForeignKey('customer.person_id')
+    )
     effective_date = Column(Date)
     expiration_date = Column(Date)
     premium = Column(Float)
+
+    customer = relationship(
+        "Customer",
+        back_populates="policy"
+    )
 
     def __repr__(self):
         return "<Policy(person_id ='%s'," \

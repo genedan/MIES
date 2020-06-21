@@ -12,6 +12,7 @@ from numpy.random import poisson
 
 from utilities.queries import query_population
 
+
 # The supreme entity, overseer of all space, time, matter and energy
 class God:
 

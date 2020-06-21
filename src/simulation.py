@@ -1,80 +1,73 @@
 import pandas as pd
 import datetime as dt
-import sqlalchemy as sa
-from SQLite.schema import PersonTable, Policy, Base, Company, Event
-from sqlalchemy.orm import sessionmaker
-from entities import God, Broker, Insurer
+
+from entities.god import God
+from entities.broker import Broker
+from entities.insurer import Insurer
 
 
 pd.set_option('display.max_columns', None)
 
 
-engine = sa.create_engine('sqlite:///MIES_Lite.db', echo=True)
-Session = sessionmaker(bind=engine)
-Base.metadata.create_all(engine)
+ahura = God()
 
-gsession = Session()
-
-
-ahura = God(gsession, engine)
 ahura.make_population(1000)
 
 pricing_date = dt.date(1, 12, 31)
 
+rayon = Broker()
 
-rayon = Broker(gsession, engine)
-company_1 = Insurer(gsession, engine, 4000000, Company, 'company_1')
-company_2 = Insurer(gsession, engine, 4000000, Company, 'company_2')
+company_1 = Insurer(4000000, 'company_1')
+
+company_2 = Insurer(4000000, 'company_2')
+
 #company_3 = Insurer(gsession, engine, 4000000, Company, 'company_3')
 #rands = Insurer(gsession, engine, 4000000, Company, 'rands')
 #sevrsp = Insurer(gsession, engine, 4000000, Company, 'sevresp')
 #company_4 = Insurer(gsession, engine, 4000000, Company, 'company_4')
 
-company_1_formula = 'severity ~ age_class + profession + health_status + education_level'
-company_2_formula = 'severity ~ age_class'
+company_1_formula = 'incurred_loss ~ ' \
+                    'age_class + ' \
+                    'profession + ' \
+                    'health_status + ' \
+                    'education_level'
+
+company_2_formula = 'incurred_loss ~' \
+                    ' age_class'
 #company_3_formula = 'severity ~ age_class + profession'
 #rands_formula = 'severity ~ rands'
 #sevrsp_formula = 'severity ~ sevresp'
 #company_4_formula = 'severity ~ age_class + profession + health_status'
 
-pricing_status = 'initial_pricing'
-
 
 policy_count = pd.DataFrame(columns=['year', 'company_1', 'company_2', 'company_1_prem', 'company_2_prem'])
-for i in range(1):
+for i in range(50):
 
-    free_business = rayon.identify_free_business(Person, Policy, pricing_date)
+    rayon.place_business(
+        pricing_date,
+        company_1,
+        company_2
+    )
 
-    companies = pd.read_sql(gsession.query(Company).statement, engine.connect())
+    event_date = pricing_date + dt.timedelta(days=1)
 
-    rayon.place_business(free_business, companies, pricing_status, pricing_date, company_1, company_2)
+    ahura.smite(event_date)
 
-    ahura.smite(Person, Policy, pricing_date + dt.timedelta(days=1))
+    rayon.report_claims(event_date)
 
-    company_1.price_book(Person, Policy, Event, company_1_formula)
+    company_1.price_book(company_1_formula)
 
-    company_2.price_book(Person, Policy, Event, company_2_formula)
+    company_2.price_book(company_2_formula)
 
     pricing_date = pricing_date.replace(pricing_date.year + 1)
 
     policy_count = policy_count.append({
         'year': pricing_date.year,
-        'company_1': len(company_1.in_force(Policy, pricing_date)),
-        'company_2': len(company_2.in_force(Policy, pricing_date)),
-        'company_1_prem': company_1.in_force(Policy, pricing_date)['premium'].mean(),
-        'company_2_prem': company_2.in_force(Policy, pricing_date)['premium'].mean()
+        'company_1': len(company_1.in_force(pricing_date)),
+        'company_2': len(company_2.in_force(pricing_date)),
+        'company_1_prem': company_1.in_force(pricing_date)['premium'].mean(),
+        'company_2_prem': company_2.in_force(pricing_date)['premium'].mean()
     }, ignore_index=True)
-
-    pricing_status = 'renewal_pricing'
-
-
-
-ahura.annihilate('test.db')
-
-
-
-
-
 
 policy_count = policy_count.groupby(['year'])[['company_1',
                                                'company_2',
@@ -117,7 +110,7 @@ fig.update_layout(title='Insurer Market Share',
                   title_x=0.5,
                   xaxis_title='Underwriting Period',
                   yaxis_title='Policy Count',
-                  yaxis_range=[0, 600])
+                  yaxis_range=[0, 1000])
 
 fig.write_html('first_figure3.html', auto_open=True)
 

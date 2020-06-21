@@ -6,10 +6,13 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import sqlalchemy as sa
 
-import schema.insco as insco
-
 from sqlalchemy.orm import sessionmaker
 from schema.universe import Company
+
+import schema.insco as insco
+from schema.universe import PersonTable
+from schema.insco import Claim, Customer, Policy
+from utilities.connections import connect_company
 
 
 class Insurer:
@@ -58,25 +61,21 @@ class Insurer:
 
     def price_book(
         self,
-        person,
-        policy,
-        event,
         pricing_formula
     ):
         book_query = self.session.query(
-            policy.policy_id,
-            person.person_id,
-            person.age_class,
-            person.profession,
-            person.health_status,
-            person.education_level,
-            event.severity).outerjoin(
-                person,
-                person.person_id == policy.person_id).\
-            outerjoin(event, event.policy_id == policy.policy_id).\
-            filter(policy.company_id == int(self.id))
+            Policy.policy_id,
+            Policy.person_id,
+            Customer.age_class,
+            Customer.profession,
+            Customer.health_status,
+            Customer.education_level,
+            Claim.incurred_loss).outerjoin(
+                Claim,
+                Claim.policy_id == Policy.policy_id).\
+            outerjoin(Customer, Policy.person_id == Customer.person_id).statement
 
-        book = pd.read_sql(book_query.statement, self.connection)
+        book = pd.read_sql(book_query, self.connection)
 
         book = book.groupby([
             'policy_id',
@@ -85,10 +84,10 @@ class Insurer:
             'profession',
             'health_status',
             'education_level']
-        ).agg({'severity': 'sum'}).reset_index()
+        ).agg({'incurred_loss': 'sum'}).reset_index()
 
         book['rands'] = np.random.uniform(size=len(book))
-        book['sevresp'] = book['severity']
+        book['sevresp'] = book['incurred_loss']
 
         self.pricing_model = smf.glm(
             formula=pricing_formula,
@@ -133,14 +132,15 @@ class Insurer:
 
     def in_force(
             self,
-            policy,
             date
     ):
+        session, connection = connect_company(self.company_name)
+        in_force_query = session.query(Policy).filter(
+                date >= Policy.effective_date).filter(date <= Policy.expiration_date).statement
 
         in_force = pd.read_sql(
-            self.session.query(policy).filter(policy.company_id == int(self.id)).filter(
-                date >= policy.effective_date).filter(date <= policy.expiration_date).statement,
-            self.connection
+            in_force_query,
+            connection
         )
-
+        connection.close()
         return in_force

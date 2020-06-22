@@ -2,9 +2,8 @@ import pandas as pd
 import datetime as dt
 import sqlalchemy as sa
 import econtools as ec
-from schema.universe import PersonTable, Policy, Base, Company, Event
+from schema.universe import PersonTable, Base, Company, Event
 from sqlalchemy.orm import sessionmaker
-from entities import God, Broker, Insurer, Person
 import numpy as np
 import plotly.graph_objects as go
 from plotly.offline import plot

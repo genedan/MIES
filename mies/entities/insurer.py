@@ -35,9 +35,9 @@ class Insurer:
         self.company_name = company_name
 
         self.pricing_model = None
-        self.id = self.register()
+        self.id = self.__register()
 
-    def register(self):
+    def __register(self):
         # populate universe company record
         insurer_table = pd.DataFrame([[self.capital, self.company_name]], columns=['capital', 'company_name'])
         universe_engine = sa.create_engine(

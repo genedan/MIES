@@ -7,11 +7,10 @@ import statsmodels.formula.api as smf
 import sqlalchemy as sa
 
 from sqlalchemy.orm import sessionmaker
-from schema.universe import Company
 
 import schema.insco as insco
-from schema.universe import PersonTable
 from schema.insco import Claim, Customer, Policy
+from schema.universe import Company
 from utilities.connections import connect_company
 
 
@@ -93,7 +92,7 @@ class Insurer:
             formula=pricing_formula,
             data=book,
             family=sm.families.Tweedie(
-                link=statsmodels.genmod.families.links.log,
+                link=statsmodels.genmod.families.Links.Log,
                 var_power=1.5
             )).fit()
 

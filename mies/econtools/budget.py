@@ -179,7 +179,6 @@ class Budget:
             option = 'end_adj'
 
         adj_func = cases[option]
-        print(option)
         return x_values.apply(adj_func)
 
     def show_plot(self):

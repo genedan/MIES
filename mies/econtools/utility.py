@@ -19,7 +19,7 @@ class CobbDouglas:
         return x1_quantity, x2_quantity, optimal_utility
 
     def trace(self, k, m):
-        x_values = np.arange(.01, m * 1.5,.01)
+        x_values = np.arange(.01, m * 1.5, .01)
         y_values = (k/(x_values ** self.c)) ** (1/self.d)
 
         return {'x': x_values,
@@ -47,5 +47,3 @@ class CobbDouglas:
 
         plot(fig)
         return fig
-
-

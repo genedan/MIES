@@ -2,32 +2,22 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 
+from plotly.offline import plot
+
 from econtools.utility import CobbDouglas
 from econtools.budget import Good, Budget
-from plotly.offline import plot
+from utilities.queries import query_person, query_policy, query_policy_history
+from parameters import INITIAL_PREMIUM
 
 
 class Person:
     def __init__(
         self,
-        session,
-        engine,
-        person,
         person_id
     ):
-        self.session = session
-        self.connection = engine.connect()
-        self.engine = engine
         self.id = person_id
 
-        query = self.session.query(person).filter(
-                person.person_id == int(self.id)
-            ).statement
-
-        self.data = pd.read_sql(
-            query,
-            self.connection
-        )
+        self.data = query_person(self.id)
         self.income = self.data['income'].loc[0]
 
         self.utility = CobbDouglas(
@@ -35,6 +25,7 @@ class Person:
             d=self.data['cobb_d'].loc[0]
         )
 
+        self.policy_history = None
         self.policy = None
         self.budget = None
         self.premium = None
@@ -44,25 +35,21 @@ class Person:
         self.engel = None
         self.demand = None
 
+    def get_policy_history(self):
+        self.policy_history = query_policy_history(self.id)
+
     def get_policy(
         self,
-        policy,
+        company_name,
         policy_id
     ):
-        query = self.session.query(policy).filter(
-            policy.policy_id == int(policy_id)
-        ).statement
-
-        self.policy = pd.read_sql(
-            query,
-            self.connection
-        )
+        self.policy = query_policy(company_name, policy_id)
         self.premium = self.policy['premium'].loc[0]
 
     def get_budget(self):
         all_other = Good(1, name='All Other Goods')
         if self.policy is None:
-            insurance = Good(4000, name='Insurance')
+            insurance = Good(INITIAL_PREMIUM, name='Insurance')
         else:
             insurance = Good(self.premium, name='Insurance')
         self.budget = Budget(insurance, all_other, income=self.income, name='Budget')

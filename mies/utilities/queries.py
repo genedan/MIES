@@ -104,3 +104,25 @@ def get_customer_ids(company):
     id_query = session.query(Customer.person_id).statement
     ids = pd.read_sql(id_query, connection)
     return ids
+
+
+def query_person(person_id):
+    session, connection = connect_universe()
+    person_query = session.query(PersonTable).filter(PersonTable.person_id == person_id).statement
+    person = pd.read_sql(person_query, connection)
+    connection.close()
+    return person
+
+
+def query_policy_history(person_id):
+    policies = query_all_policies()
+    policies = policies[policies['person_id'] == person_id]
+    return policies
+
+
+def query_policy(company_name, policy_id):
+    session, connection = connect_company(company_name)
+    policy_query = session.query(Policy).filter(Policy.policy_id == policy_id).statement
+    policy = pd.read_sql(policy_query, connection)
+    connection.close()
+    return policy

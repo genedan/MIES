@@ -18,14 +18,16 @@ class CobbDouglas:
 
         return x1_quantity, x2_quantity, optimal_utility
 
-    def trace(self, k, m):
+    def trace(self, k, m, name=None):
         x_values = np.arange(.01, m * 1.5, .01)
         y_values = (k/(x_values ** self.c)) ** (1/self.d)
+        if name is None:
+            name = 'Utility: ' + str(int(round(k)))
 
         return {'x': x_values,
                 'y': y_values,
                 'mode': 'lines',
-                'name': 'Utility: ' + str(int(round(k)))}
+                'name': name}
 
     def show_plot(self, k=5, m=10):
         fig = go.Figure(data=self.trace(k, m))

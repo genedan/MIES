@@ -61,7 +61,7 @@ class Good:
 
 
 class Budget:
-    def __init__(self, good_x, good_y, income, name):
+    def __init__(self, good_x, good_y, income, name=None):
         self.good_x = good_x
         self.good_y = good_y
         self.income = income

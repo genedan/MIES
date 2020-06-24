@@ -14,6 +14,11 @@ Additional examples can be found in a series of blog posts, here:
 
 https://genedan.com/category/mies/
 
+## Documentation
+Documentation can be found here:
+
+https://genedan.com/MIES/docs/
+
 ## Concepts Modeled
 
 * Availability of insurance

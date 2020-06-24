@@ -1,13 +1,14 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 
 from plotly.offline import plot
 
-from econtools.utility import CobbDouglas
 from econtools.budget import Good, Budget
-from utilities.queries import query_person, query_policy, query_policy_history
+from econtools.slutsky import Slutsky
+from econtools.utility import CobbDouglas
 from parameters import INITIAL_PREMIUM
+from utilities.queries import query_person, query_policy, query_policy_history
 
 
 class Person:
@@ -34,6 +35,7 @@ class Person:
         self.offer = None
         self.engel = None
         self.demand = None
+        self.slutsky = None
 
     def get_policy_history(self):
         self.policy_history = query_policy_history(self.id)
@@ -196,3 +198,14 @@ class Person:
 
         plot(fig)
         return fig
+
+    def calculate_slutsky(self, new_budget):
+        self.slutsky = Slutsky(
+            old_budget=self.budget,
+            new_budget=new_budget,
+            utility_function=self.utility
+        )
+        self.slutsky.plot['layout'].update({
+            'title': 'Slutsky Decomposition for Person ' + str(self.id)
+        })
+        self.slutsky.plot['layout'].update({'title_x': 0.5})

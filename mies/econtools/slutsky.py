@@ -92,6 +92,15 @@ class Slutsky:
             self.pivoted_budget.income,
             self.new_budget.income,
         ) * 1.2
+
+        # interval boundaries
+        effect_boundaries = [
+            self.new_bundle[0],
+            self.substitution_bundle[0],
+            self.old_bundle[0]
+        ]
+        effect_boundaries.sort()
+
         fig = go.Figure()
 
         # budget lines
@@ -168,26 +177,119 @@ class Slutsky:
             )
         )
         # Substitution and income effect interval lines
-        # fig.add_shape(
-        #     type='line',
-        #     xref='x',
-        #     yref='y',
-        #     x0=self.substitution_bundle[0] - self.substitution_effect,
-        #     y0=max_y_int / 10,
-        #     x1=self.substitution_bundle[0],
-        #     y1=max_y_int / 10,
-        #     line=dict(
-        #         color='LightSeaGreen',
-        #         dash='dashdot'
-        #     )
-        # )
-        # fig.add_trace(go.Scatter(
-        #     x=[self.substitution_bundle[0] * .5],
-        #     y=[max_y_int / 10],
-        #     text=['Substitution Effect'],
-        #     mode='text',
-        #     textposition='top center'
-        # ))
+        fig.add_shape(
+            type='line',
+            x0=self.substitution_bundle[0],
+            y0=self.substitution_bundle[1],
+            x1=self.substitution_bundle[0],
+            y1=0,
+            line=dict(
+                color="grey",
+                dash="dashdot",
+                width=1
+            )
+        )
+
+        fig.add_shape(
+            type='line',
+            x0=self.new_bundle[0],
+            y0=self.new_bundle[1],
+            x1=self.new_bundle[0],
+            y1=0,
+            line=dict(
+                color="grey",
+                dash="dashdot",
+                width=1
+            )
+        )
+
+        fig.add_shape(
+            type='line',
+            x0=self.old_bundle[0],
+            y0=self.old_bundle[1],
+            x1=self.old_bundle[0],
+            y1=-100000,
+            line=dict(
+                color="grey",
+                dash="dashdot",
+                width=1
+            )
+        )
+        fig.add_shape(
+            type='line',
+            xref='x',
+            yref='y',
+            x0=effect_boundaries[0],
+            y0=max_y_int / 10,
+            x1=effect_boundaries[1],
+            y1=max_y_int / 10,
+            line=dict(
+                color='grey',
+                dash='dashdot'
+            )
+        )
+        fig.add_shape(
+            type='line',
+            xref='x',
+            yref='y',
+            x0=effect_boundaries[1],
+            y0=max_y_int / 15,
+            x1=effect_boundaries[2],
+            y1=max_y_int / 15,
+            line=dict(
+                color='grey',
+                dash='dashdot'
+            )
+        )
+        fig.add_shape(
+            type='line',
+            xref='x',
+            yref='y',
+            x0=effect_boundaries[0],
+            y0=max_y_int / 20,
+            x1=effect_boundaries[2],
+            y1=max_y_int / 20,
+            line=dict(
+                color='grey',
+                dash='dashdot'
+            )
+        )
+
+        fig.add_annotation(
+            x=(self.substitution_bundle[0] + self.old_bundle[0]) / 2,
+            y=max_y_int / 10,
+            text='Substitution<br />Effect',
+            xref='x',
+            yref='y',
+            showarrow=True,
+            arrowhead=7,
+            ax=5,
+            ay=-40,
+        )
+
+        fig.add_annotation(
+            x=(self.new_bundle[0] + self.substitution_bundle[0]) / 2,
+            y=max_y_int / 15,
+            text='Income Effect',
+            xref='x',
+            yref='y',
+            showarrow=True,
+            arrowhead=7,
+            ax=50,
+            ay=-20
+        )
+
+        fig.add_annotation(
+            x=(effect_boundaries[2] + effect_boundaries[0]) / 2,
+            y=max_y_int / 20,
+            text='Total Effect',
+            xref='x',
+            yref='y',
+            showarrow=True,
+            arrowhead=7,
+            ax=100,
+            ay=20
+        )
 
         fig['layout'].update({
             'title': 'Slutsky Decomposition',

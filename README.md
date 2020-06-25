@@ -1,4 +1,6 @@
 # MIES
+[![PyPI version](https://badge.fury.io/py/mies.svg)](https://badge.fury.io/py/mies)
+
 Miniature Insurance Economic Simulator
 
 ![](docs/claim_schema.png)
@@ -29,6 +31,11 @@ https://genedan.com/MIES/docs/
 
 * Should be consistent with both macro and microeconomic theory
 * Should be consistent with actuarial theory
+
+## Installation
+```
+pip install mies
+```
 
 ## Example Simulation
 

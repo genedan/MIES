@@ -92,7 +92,7 @@ class Insurer:
             formula=pricing_formula,
             data=book,
             family=sm.families.Tweedie(
-                link=statsmodels.genmod.families.Links.Log,
+                link=statsmodels.genmod.families.links.log,
                 var_power=1.5
             )).fit()
 

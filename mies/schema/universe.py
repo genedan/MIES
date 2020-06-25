@@ -18,6 +18,7 @@ class PersonTable(Base):
     health_status = Column(String)
     education_level = Column(String)
     income = Column(Float)
+    wealth = Column(Float)
     cobb_c = Column(Float)
     cobb_d = Column(Float)
 
@@ -33,6 +34,7 @@ class PersonTable(Base):
                "health_status='%s', " \
                "education_level='%s'" \
                "income='%s'" \
+               "wealth='%s'" \
                "cobb_c='%s'" \
                "cobb_d='%s'" \
                ")>" % (
@@ -41,6 +43,7 @@ class PersonTable(Base):
                 self.health_status,
                 self.education_level,
                 self.income,
+                self.wealth,
                 self.cobb_c,
                 self.cobb_d
                 )

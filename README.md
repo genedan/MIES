@@ -1,7 +1,7 @@
 # MIES
 Miniature Insurance Economic Simulator
 
-![](claim_schema.png)
+![](docs/claim_schema.png)
 
 ## Introduction
 

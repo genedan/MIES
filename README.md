@@ -30,6 +30,13 @@ https://genedan.com/MIES/docs/
 * Should be consistent with both macro and microeconomic theory
 * Should be consistent with actuarial theory
 
+## Installation
+[![PyPI version](https://badge.fury.io/py/mies.svg)](https://badge.fury.io/py/mies)
+
+```
+pip install mies
+```
+
 ## Example Simulation
 
 ```

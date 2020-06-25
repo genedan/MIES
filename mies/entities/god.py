@@ -41,6 +41,11 @@ class God:
             scale=pm.person_params['income'],
             size=n_people,
         )
+        wealth = pareto.rvs(
+            b=1,
+            scale=pm.person_params['wealth'],
+            size=n_people
+        )
         cobb_c = [pm.person_params['cobb_c']] * n_people
         cobb_d = [pm.person_params['cobb_d']] * n_people
 
@@ -51,6 +56,7 @@ class God:
                 health_status,
                 education_level,
                 income,
+                wealth,
                 cobb_c,
                 cobb_d
             )
@@ -60,6 +66,7 @@ class God:
             'health_status',
             'education_level',
             'income',
+            'wealth',
             'cobb_c',
             'cobb_d'
         ])

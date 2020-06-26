@@ -46,3 +46,15 @@ test.substitution_effect + test.income_effect
 
 my_person.calculate_slutsky(new_budget)
 my_person.slutsky.show_plot()
+
+
+# test rates
+test.substitution_rate
+test.income_rate
+test.slutsky_rate
+test.delta_p
+
+test.total_effect
+
+# should be zero
+test.slutsky_rate - test.total_effect / test.delta_p

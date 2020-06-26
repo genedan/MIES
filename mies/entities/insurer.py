@@ -86,7 +86,6 @@ class Insurer:
         ).agg({'incurred_loss': 'sum'}).reset_index()
 
         book['rands'] = np.random.uniform(size=len(book))
-        book['sevresp'] = book['incurred_loss']
 
         self.pricing_model = smf.glm(
             formula=pricing_formula,

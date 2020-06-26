@@ -23,6 +23,7 @@ https://genedan.com/MIES/docs/
 
 ## Concepts Modeled
 
+* [Adverse Selection](https://genedan.com/no-135-mies-simulating-an-insurance-market/)
 * Availability of insurance
 * Predatory pricing
 * Impact of insolvency on insureds

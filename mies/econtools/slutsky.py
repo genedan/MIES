@@ -28,19 +28,23 @@ class Slutsky:
             self.old_budget.income
         )
 
+        self.delta_p = self.new_budget.good_x.price - self.old_budget.good_x.price
         self.pivoted_budget = self.calculate_pivoted_budget()
         self.substitution_bundle = self.calculate_substitution_bundle()
         self.substitution_effect = self.calculate_substitution_effect()
         self.new_bundle = self.calculate_new_bundle()
         self.income_effect = self.calculate_income_effect()
+        self.total_effect = self.substitution_effect + self.income_effect
+        self.substitution_rate = self.calculate_substitution_rate()
+        self.income_rate = self.calculate_income_rate()
+        self.slutsky_rate = self.substitution_rate - self.income_rate
         self.plot = self.get_slutsky_plot()
 
     def calculate_pivoted_budget(self):
         """
         Pivot the budget line at the new price so the consumer can still afford their old bundle
         """
-        delta_p = self.new_budget.good_x.price - self.old_budget.good_x.price
-        delta_m = self.old_bundle[0] * delta_p
+        delta_m = self.old_bundle[0] * self.delta_p
         pivoted_income = self.old_budget.income + delta_m
         pivoted_budget = Budget(
             self.new_budget.good_x,
@@ -79,6 +83,19 @@ class Slutsky:
     def calculate_income_effect(self):
         income_effect = self.new_bundle[0] - self.substitution_bundle[0]
         return income_effect
+
+    def calculate_substitution_rate(self):
+        delta_s = self.calculate_substitution_effect()
+        delta_p =  self.new_budget.good_x.price - self.old_budget.good_x.price
+        subsitution_rate = delta_s / delta_p
+        return subsitution_rate
+
+    def calculate_income_rate(self):
+        delta_p = self.new_budget.good_x.price - self.old_budget.good_x.price
+        delta_m = self.old_bundle[0] * delta_p
+        delta_x1m = -self.calculate_income_effect()
+        income_rate = delta_x1m / delta_m * self.old_bundle[0]
+        return income_rate
 
     def get_slutsky_plot(self):
         max_x_int = max(

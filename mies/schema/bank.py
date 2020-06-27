@@ -104,5 +104,56 @@ class Customer(Base):
         Integer,
         primary_key=True
     )
-    person_id = Column(Integer)
-    company_id = Column(Integer)
+    customer_type = Column(String)
+
+    person = relationship(
+        'Person',
+        primaryjoin='Customer.customer_id == Person.customer_id',
+        back_populates='customer'
+    )
+
+    company = relationship(
+        'Company',
+        primaryjoin='Customer.customer_id == Company.customer_id',
+        back_populates='customer'
+    )
+
+
+class Person(Base):
+    __tablename__ = 'person'
+
+    person_id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    customer_id = Column(
+        Integer,
+        ForeignKey('customer.customer_id')
+    )
+
+    customer = relationship(
+        'Customer',
+        primaryjoin='Person.customer_id == Customer.customer_id',
+        back_populates='person'
+    )
+
+
+class Company(Base):
+    __tablename__ = 'company'
+
+    company_id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    customer_id = Column(
+        Integer,
+        ForeignKey('customer.customer_id')
+    )
+
+    customer = relationship(
+        'Customer',
+        primaryjoin='Company.customer_id == Customer.customer_id',
+        back_populates='company'
+    )

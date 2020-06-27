@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
 import schema.bank as bank
+from utilities.queries import query_last_bank_customer_id
 
 
 class Bank:
@@ -21,18 +22,45 @@ class Bank:
         self.capital = starting_capital
         self.name = bank_name
 
-    def get_customers(self, person_ids):
+    def get_customers(self, ids, customer_type):
         new_customers = pd.DataFrame()
-        new_customers['customer_id']
+        new_customers[customer_type + '_id'] = ids
+        new_customers['customer_type'] = customer_type
+        last_id = query_last_bank_customer_id(self.name) + 1
+        if last_id.empty:
+            customer_ids = list(range(new_customers.shape[0] + 1))
+            customer_ids.pop(0)
+            new_customers['customer_id'] = customer_ids
 
-    def assign_account(self, customer_ids, account_type):
-        new_accounts = pd.DataFrame()
-        new_accounts['account_id'] = person_ids
-        new_accounts['account_type'] = account_type
+        else:
+            next_id = last_id + 1
+            new_customers['customer_id'] = list(range(next_id, next_id + new_customers.shape[0]))
 
-        new_accounts.to_sql(
-            name='account',
-            con=self.connection,
+        to_entity = new_customers[[customer_type + '_id', 'customer_id']].copy()
+        new_customers = new_customers[['customer_id', 'customer_type']]
+
+        to_entity.to_sql(
+            customer_type,
+            self.connection,
             index=False,
             if_exists='append'
         )
+
+        new_customers.to_sql(
+            'customer',
+            self.connection,
+            index=False,
+            if_exists='append'
+        )
+
+    # def assign_account(self, customer_ids, account_type):
+    #     new_accounts = pd.DataFrame()
+    #     new_accounts['account_id'] = person_ids
+    #     new_accounts['account_type'] = account_type
+    #
+    #     new_accounts.to_sql(
+    #         name='account',
+    #         con=self.connection,
+    #         index=False,
+    #         if_exists='append'
+    #     )

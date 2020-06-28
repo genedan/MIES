@@ -57,12 +57,12 @@ class Transaction(Base):
         primary_key=True
     )
 
-    credit_account = Column(
+    debit_account = Column(
         Integer,
         ForeignKey('account.account_id')
     )
 
-    debit_account = Column(
+    credit_account = Column(
         Integer,
         ForeignKey('account.account_id')
     )
@@ -85,13 +85,13 @@ class Transaction(Base):
 
     def __repr__(self):
         return "<Transaction(" \
-               "credit_account='%s', " \
                "debit_account='%s', " \
+               "credit_account='%s', " \
                "transaction_date='%s', " \
                "transaction_amount='%s'" \
                ")>" % (
-                   self.credit_account,
                    self.debit_account,
+                   self.credit_account,
                    self.transaction_date,
                    self.transaction_amount,
                )

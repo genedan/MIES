@@ -69,6 +69,23 @@ class Company(Base):
                 )
 
 
+class BankTable(Base):
+    __tablename__ = 'bank'
+
+    bank_id = Column(
+        Integer,
+        primary_key=True
+    )
+    bank_name = Column(String)
+
+    def __repr(self):
+        return "<BankTable(" \
+               "bank_name='%s'," \
+               ")>" % (
+                self.bank_name
+                )
+
+
 class Event(Base):
     __tablename__ = 'event'
 

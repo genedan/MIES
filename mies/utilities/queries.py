@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy.sql import func
 
 import schema.bank as bank
-from schema.universe import Company, PersonTable
+from schema.universe import BankTable, Company, PersonTable
 from schema.insco import Customer, Policy
 from utilities.connections import (
     connect_universe,
@@ -139,3 +139,10 @@ def query_last_bank_customer_id(bank_name):
     max_id_query = session.query(bank.Customer.customer_id).statement
     max_id = pd.read_sql(max_id_query, connection).squeeze()
     return max_id
+
+
+def query_bank_id(bank_name):
+    session, connection = connect_universe()
+    id_query = session.query(BankTable.bank_id).filter(BankTable.bank_name == bank_name).statement
+    bank_id = pd.read_sql(id_query, connection).iat[0, 0]
+    return bank_id

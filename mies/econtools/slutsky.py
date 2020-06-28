@@ -86,9 +86,9 @@ class Slutsky:
 
     def calculate_substitution_rate(self):
         delta_s = self.calculate_substitution_effect()
-        delta_p =  self.new_budget.good_x.price - self.old_budget.good_x.price
-        subsitution_rate = delta_s / delta_p
-        return subsitution_rate
+        delta_p = self.new_budget.good_x.price - self.old_budget.good_x.price
+        substitution_rate = delta_s / delta_p
+        return substitution_rate
 
     def calculate_income_rate(self):
         delta_p = self.new_budget.good_x.price - self.old_budget.good_x.price

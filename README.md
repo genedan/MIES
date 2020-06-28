@@ -19,7 +19,7 @@ https://genedan.com/category/mies/
 ## Documentation
 Documentation can be found here:
 
-https://genedan.com/MIES/docs/
+https://genedan.com/mies/docs/
 
 ## Concepts Modeled
 

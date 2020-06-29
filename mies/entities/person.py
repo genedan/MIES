@@ -52,6 +52,7 @@ class Person:
         all_other = Good(1, name='All Other Goods')
         if self.policy is None:
             insurance = Good(INITIAL_PREMIUM, name='Insurance')
+            self.premium = INITIAL_PREMIUM
         else:
             insurance = Good(self.premium, name='Insurance')
         self.budget = Budget(insurance, all_other, income=self.income, name='Budget')

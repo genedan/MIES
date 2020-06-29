@@ -1,14 +1,15 @@
+import numpy as np
 import pandas as pd
 from sqlalchemy.sql import func
 
 import schema.bank as bank
+from schema.bank import Account, Person
 from schema.universe import BankTable, Company, PersonTable
 from schema.insco import Customer, Policy
 from utilities.connections import (
     connect_universe,
     connect_company,
     connect_bank)
-
 
 
 def query_population():
@@ -137,7 +138,7 @@ def query_last_bank_customer_id(bank_name):
     max_id_query = session.query(func.max(bank.Customer.customer_id)).statement
     max_id = pd.read_sql(max_id_query, connection).squeeze()
     max_id_query = session.query(bank.Customer.customer_id).statement
-    max_id = pd.read_sql(max_id_query, connection).squeeze()
+    max_id = pd.read_sql(max_id_query, connection)
     return max_id
 
 
@@ -146,3 +147,10 @@ def query_bank_id(bank_name):
     id_query = session.query(BankTable.bank_id).filter(BankTable.bank_name == bank_name).statement
     bank_id = pd.read_sql(id_query, connection).iat[0, 0]
     return bank_id
+
+
+def query_accounts_by_person_id(ids, bank_name):
+    session, connection = connect_bank(bank_name)
+    accounts_query = session.query(Person.person_id, Person.customer_id, Account.account_id).outerjoin(Account, Person.person_id == Account.account_id).statement
+    accounts = pd.read_sql(accounts_query, connection)
+    return accounts

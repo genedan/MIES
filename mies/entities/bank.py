@@ -26,10 +26,18 @@ class Bank:
         self.date_established = date_established
         self.id = self.__register()
         self.get_customers(self.id, 'bank')
-        self.cash_account = self.assign_account(customer_id=self.id, account_type='cash')
+        self.cash_account = self.assign_account(
+            customer_id=self.id,
+            account_type='cash'
+        )
         self.capital_account = self.assign_account(self.id, 'capital')
         self.liability_account = self.assign_account(self.id, 'liability')
-        self.make_transaction(self.cash_account, self.capital_account, self.date_established, starting_capital)
+        self.make_transaction(
+            self.cash_account,
+            self.capital_account,
+            self.date_established,
+            starting_capital
+        )
 
     def __register(self):
         # populate universe company record
@@ -49,13 +57,13 @@ class Bank:
         new_customers[customer_type + '_id'] = pd.Series(ids)
         new_customers['customer_type'] = customer_type
         last_id = query_last_bank_customer_id(self.name)
-        if len(last_id) == 0:
+        if last_id.empty:
             customer_ids = list(range(new_customers.shape[0] + 1))
             customer_ids.pop(0)
             new_customers['customer_id'] = customer_ids
 
         else:
-            next_id = last_id + 1
+            next_id = last_id.squeeze() + 1
             new_customers['customer_id'] = list(range(next_id, next_id + new_customers.shape[0]))
 
         to_entity = new_customers[[customer_type + '_id', 'customer_id']].copy()
@@ -76,6 +84,9 @@ class Bank:
         )
 
     def assign_accounts(self, customer_ids, account_type):
+        """
+        assign multiple accounts given customer ids
+        """
         new_accounts = pd.DataFrame()
         new_accounts['customer_id'] = customer_ids
         new_accounts['account_type'] = account_type
@@ -88,12 +99,18 @@ class Bank:
         )
 
     def assign_account(self, customer_id, account_type):
+        """
+        assign a single account for a customer
+        """
         account = Account(customer_id=int(customer_id), account_type=account_type)
         self.session.add(account)
         self.session.commit()
         return account.account_id
 
     def make_transaction(self, debit_account, credit_account, transaction_date, transaction_amount):
+        """
+        make a single transaction
+        """
         transaction = Transaction(
             debit_account=int(debit_account),
             credit_account=int(credit_account),
@@ -103,3 +120,16 @@ class Bank:
         self.session.add(transaction)
         self.session.commit()
         return transaction.transaction_id
+
+    def make_transactions(self, data: pd.DataFrame):
+        """
+        accepts a DataFrame to make multiple transactions
+        """
+        data['debit_account'] = data['debit_account'].astype(int)
+        data['credit_account'] = data['credit_account'].astype(int)
+        data.to_sql(
+            'transaction',
+            self.connection,
+            index=False,
+            if_exists='append'
+        )

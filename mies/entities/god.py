@@ -10,7 +10,8 @@ from scipy.stats import gamma
 from scipy.stats import pareto
 from numpy.random import poisson
 
-from utilities.queries import query_population
+from entities.bank import Bank
+from utilities.queries import query_population, query_accounts_by_person_id
 
 
 # The supreme entity, overseer of all space, time, matter and energy
@@ -41,11 +42,6 @@ class God:
             scale=pm.person_params['income'],
             size=n_people,
         )
-        wealth = pareto.rvs(
-            b=1,
-            scale=pm.person_params['wealth'],
-            size=n_people
-        )
         cobb_c = [pm.person_params['cobb_c']] * n_people
         cobb_d = [pm.person_params['cobb_d']] * n_people
 
@@ -56,7 +52,6 @@ class God:
                 health_status,
                 education_level,
                 income,
-                wealth,
                 cobb_c,
                 cobb_d
             )
@@ -66,7 +61,6 @@ class God:
             'health_status',
             'education_level',
             'income',
-            'wealth',
             'cobb_c',
             'cobb_d'
         ])
@@ -77,6 +71,23 @@ class God:
             index=False,
             if_exists='append'
         )
+
+    def grant_wealth(self, person_ids, bank: Bank, transaction_date):
+        """
+        assign an initial amount of starting wealth per person
+        """
+        accounts = query_accounts_by_person_id(person_ids, bank.name)
+        accounts['transaction_amount'] = pareto.rvs(
+            b=1,
+            scale=pm.person_params['income'],
+            size=accounts.shape[0],
+        )
+        accounts = accounts[['account_id', 'transaction_amount']]
+        accounts = accounts.rename(columns={'account_id': 'debit_account'})
+        accounts['credit_account'] = bank.liability_account
+        accounts['transaction_date'] = transaction_date
+        bank.make_transactions(accounts)
+
 
     def smite(
         self,

@@ -225,7 +225,7 @@ class Slutsky:
             x0=self.old_bundle[0],
             y0=self.old_bundle[1],
             x1=self.old_bundle[0],
-            y1=-100000,
+            y1=0,
             line=dict(
                 color="grey",
                 dash="dashdot",

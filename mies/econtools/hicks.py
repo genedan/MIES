@@ -38,7 +38,7 @@ class Hicks:
 
     def calculate_pivoted_budget(self):
         """
-        Pivot the budget line at the new price so the consumer can still afford their old bundle
+        Pivot the budget line at the new price so the consumer still as the same utility
         """
         old_utility = self.old_bundle[2]
         c = self.utility.c

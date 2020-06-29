@@ -69,7 +69,7 @@ class Budget:
         self.y_lim = self.income / (min(self.good_y.adjusted_price, self.good_y.price)) * 1.2
         self.name = name
 
-    def get_line(self):
+    def get_line(self, width=2):
         data = pd.DataFrame(columns=['x_values', 'y_values'])
         data['x_values'] = np.arange(int(min(self.x_lim, self.good_x.ration)) + 1)
 
@@ -100,7 +100,10 @@ class Budget:
         return {'x': data['x_values'],
                 'y': data['y_values'],
                 'mode': 'lines',
-                'name': self.name}
+                'name': self.name,
+                'line': {
+                    'width': width
+                }}
 
     def calculate_budget(
             self,

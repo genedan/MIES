@@ -1,3 +1,4 @@
+import datetime as dt
 import numpy as np
 import os
 import pandas as pd
@@ -9,15 +10,19 @@ import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
 import schema.insco as insco
+from entities.bank import Bank
 from schema.insco import Claim, Customer, Policy
 from schema.universe import Company
 from utilities.connections import connect_company
+from utilities.queries import query_customers_by_insurer_id
 
 
 class Insurer:
     def __init__(
         self,
         starting_capital,
+        bank: Bank,
+        inception_date,
         company_name
     ):
         if not os.path.exists('db/companies'):
@@ -31,10 +36,15 @@ class Insurer:
         self.session = session()
         self.connection = self.engine.connect()
         self.capital = starting_capital
+        self.bank = bank
+        self.cash_account = None
+        self.liability_account = None
+        self.capital_account = None
         self.company_name = company_name
 
         self.pricing_model = None
         self.id = self.__register()
+        self.__get_bank_account(inception_date)
 
     def __register(self):
         # populate universe company record
@@ -57,6 +67,15 @@ class Insurer:
                               statement, universe_connection).iat[0, 0]
         universe_connection.close()
         return self.id
+
+    def __get_bank_account(self, transaction_date):
+        self.bank.get_customers(self.id, 'insurer')
+        customer_id = query_customers_by_insurer_id([self.id], self.bank.name)
+        self.cash_account = self.bank.assign_account(customer_id, 'cash')
+        self.liability_account = self.bank.assign_account(customer_id, 'liability')
+        self.capital_account = self.bank.assign_account(customer_id, 'capital')
+        self.bank.make_transaction(self.cash_account, self.liability_account, transaction_date, self.capital)
+
 
     def price_book(
         self,

@@ -112,9 +112,9 @@ class Customer(Base):
         back_populates='customer'
     )
 
-    company = relationship(
-        'Company',
-        primaryjoin='Customer.customer_id == Company.customer_id',
+    insurer = relationship(
+        'Insurer',
+        primaryjoin='Customer.customer_id == Insurer.customer_id',
         back_populates='customer'
     )
 
@@ -139,10 +139,10 @@ class Person(Base):
     )
 
 
-class Company(Base):
-    __tablename__ = 'company'
+class Insurer(Base):
+    __tablename__ = 'insurer'
 
-    company_id = Column(
+    insurer_id = Column(
         Integer,
         primary_key=True
     )
@@ -154,6 +154,6 @@ class Company(Base):
 
     customer = relationship(
         'Customer',
-        primaryjoin='Company.customer_id == Customer.customer_id',
-        back_populates='company'
+        primaryjoin='Insurer.customer_id == Customer.customer_id',
+        back_populates='insurer'
     )

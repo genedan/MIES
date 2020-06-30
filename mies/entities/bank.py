@@ -57,13 +57,13 @@ class Bank:
         new_customers[customer_type + '_id'] = pd.Series(ids)
         new_customers['customer_type'] = customer_type
         last_id = query_last_bank_customer_id(self.name)
-        if last_id.empty:
+        if last_id is None:
             customer_ids = list(range(new_customers.shape[0] + 1))
             customer_ids.pop(0)
             new_customers['customer_id'] = customer_ids
 
         else:
-            next_id = last_id.squeeze() + 1
+            next_id = last_id + 1
             new_customers['customer_id'] = list(range(next_id, next_id + new_customers.shape[0]))
 
         to_entity = new_customers[[customer_type + '_id', 'customer_id']].copy()
@@ -133,3 +133,4 @@ class Bank:
             index=False,
             if_exists='append'
         )
+

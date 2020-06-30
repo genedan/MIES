@@ -11,12 +11,14 @@ from scipy.stats import pareto
 from numpy.random import poisson
 
 from entities.bank import Bank
-from utilities.queries import query_population, query_accounts_by_person_id
+from utilities.queries import query_population, query_accounts_by_person_id, query_incomes
 
 
-# The supreme entity, overseer of all space, time, matter and energy
 class God:
-
+    """
+    The supreme entity, overseer of all space, time, matter and energy.
+    Ruler of all unexplained variance and exogenous variables
+    """
     def __init__(self):
         if not os.path.exists('db'):
             os.makedirs('db')
@@ -72,22 +74,58 @@ class God:
             if_exists='append'
         )
 
-    def grant_wealth(self, person_ids, bank: Bank, transaction_date):
+    def grant_wealth(
+            self,
+            person_ids,
+            bank: Bank,
+            transaction_date
+    ):
         """
         assign an initial amount of starting wealth per person
         """
-        accounts = query_accounts_by_person_id(person_ids, bank.name)
+        accounts = query_accounts_by_person_id(
+            person_ids,
+            bank.name,
+            'cash'
+        )
         accounts['transaction_amount'] = pareto.rvs(
             b=1,
             scale=pm.person_params['income'],
             size=accounts.shape[0],
         )
-        accounts = accounts[['account_id', 'transaction_amount']]
-        accounts = accounts.rename(columns={'account_id': 'debit_account'})
+        accounts = accounts[[
+            'account_id',
+            'transaction_amount'
+        ]]
+        accounts = accounts.rename(columns={
+            'account_id': 'debit_account'
+        })
         accounts['credit_account'] = bank.liability_account
         accounts['transaction_date'] = transaction_date
         bank.make_transactions(accounts)
 
+    def send_paychecks(self, person_ids, bank: Bank, transaction_date):
+        incomes = query_incomes(person_ids)
+        incomes.columns = ['person_id', 'transaction_amount']
+
+        accounts = query_accounts_by_person_id(
+            person_ids,
+            bank.name,
+            'cash'
+        )
+
+        accounts = accounts.merge(incomes, on='person_id', how='left')
+
+        accounts = accounts.rename(columns={
+            'account_id': 'debit_account'
+        })
+        accounts['credit_account'] = bank.liability_account
+        accounts['transaction_date'] = transaction_date
+        accounts = accounts.drop([
+            'person_id',
+            'customer_id'
+        ], axis=1)
+        bank.make_transactions(accounts)
 
     def smite(
         self,

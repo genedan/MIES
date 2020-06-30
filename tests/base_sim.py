@@ -31,7 +31,6 @@ company_2_formula = 'incurred_loss ~' \
                     ' age_class'
 
 
-policy_count = pd.DataFrame(columns=['year', 'company_1', 'company_2', 'company_1_prem', 'company_2_prem'])
 for i in range(10):
 
     rayon.place_business(

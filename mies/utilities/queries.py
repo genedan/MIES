@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy.sql import func
 
 import schema.bank as bank
-from schema.bank import Account, Person
+from schema.bank import Account, Insurer, Person, Transaction
 from schema.universe import BankTable, Company, PersonTable
 from schema.insco import Customer, Policy
 from utilities.connections import (
@@ -29,6 +29,17 @@ def query_company():
     )
     connection.close()
     return companies
+
+
+def query_banks():
+    session, connection = connect_universe()
+    banks_query = session.query(BankTable).statement
+    banks = pd.read_sql(
+        banks_query,
+        connection
+    )
+    connection.close()
+    return banks
 
 
 def query_all_policies():
@@ -108,6 +119,7 @@ def get_customer_ids(company):
     session, connection = connect_company(company)
     id_query = session.query(Customer.person_id).statement
     ids = pd.read_sql(id_query, connection)
+    connection.close()
     return ids
 
 
@@ -137,8 +149,7 @@ def query_last_bank_customer_id(bank_name):
     session, connection = connect_bank(bank_name)
     max_id_query = session.query(func.max(bank.Customer.customer_id)).statement
     max_id = pd.read_sql(max_id_query, connection).squeeze()
-    max_id_query = session.query(bank.Customer.customer_id).statement
-    max_id = pd.read_sql(max_id_query, connection)
+    connection.close()
     return max_id
 
 
@@ -146,11 +157,180 @@ def query_bank_id(bank_name):
     session, connection = connect_universe()
     id_query = session.query(BankTable.bank_id).filter(BankTable.bank_name == bank_name).statement
     bank_id = pd.read_sql(id_query, connection).iat[0, 0]
+    connection.close()
     return bank_id
 
 
-def query_accounts_by_person_id(ids, bank_name):
+def query_accounts_by_person_id(person_ids, bank_name, account_type):
     session, connection = connect_bank(bank_name)
-    accounts_query = session.query(Person.person_id, Person.customer_id, Account.account_id).outerjoin(Account, Person.person_id == Account.account_id).statement
-    accounts = pd.read_sql(accounts_query, connection)
+
+    accounts_query = session.query(
+        Person.person_id,
+        Person.customer_id,
+        Account.account_id
+    ).outerjoin(
+        Account,
+        Person.customer_id == Account.customer_id
+    ).filter(
+        Account.account_type == account_type
+    ).statement
+
+    accounts = pd.read_sql(
+        accounts_query,
+        connection
+    )
+
+    accounts = accounts[accounts['person_id'].isin(person_ids)]
+
+    connection.close()
+
     return accounts
+
+
+def query_incomes(person_ids):
+    session, connection = connect_universe()
+
+    income_query = session.query(
+        PersonTable.person_id,
+        PersonTable.income
+    ).statement
+
+    incomes = pd.read_sql(
+        income_query,
+        connection
+    )
+
+    incomes = incomes[incomes['person_id'].isin(person_ids)]
+
+    connection.close()
+
+    return incomes
+
+
+def query_customers_by_person_id(person_ids, bank_name):
+    session, connection = connect_bank(bank_name)
+
+    customer_query = session.query(Person).statement
+
+    customers = pd.read_sql(customer_query, connection)
+
+    customers = customers[customers['person_id'].isin(person_ids)]
+
+    customers = customers['customer_id']
+
+    connection.close()
+    return customers
+
+
+def query_population_wealth():
+    """
+    get wealth for each person in the population
+    """
+    population = query_population()
+
+    person_ids = population['person_id']
+
+    banks = query_banks()
+
+    pop_wealth = pd.DataFrame()
+
+    for index, row in banks.iterrows():
+
+        bank_name = row['bank_name']
+
+        session, connection = connect_bank(bank_name)
+
+        debit_query = session.query(
+            Transaction.debit_account,
+            func.sum(Transaction.transaction_amount)
+        ).group_by(Transaction.debit_account).statement
+
+        debit_amounts = pd.read_sql(
+            debit_query,
+            connection
+        )
+        debit_amounts.columns = [
+            'account_id',
+            'debits'
+        ]
+
+        credit_query = session.query(
+            Transaction.credit_account,
+            func.sum(Transaction.transaction_amount)
+        ).group_by(Transaction.credit_account).statement
+
+        credit_amounts = pd.read_sql(
+            credit_query,
+            connection
+        )
+        credit_amounts.columns = [
+            'account_id',
+            'credits'
+        ]
+
+        person_accounts = query_accounts_by_person_id(
+            person_ids,
+            bank_name,
+            'cash'
+        )
+
+        wealth = person_accounts.merge(
+            debit_amounts,
+            on='account_id',
+            how='left'
+        )
+
+        wealth = wealth.merge(
+            credit_amounts,
+            on='account_id',
+            how='left'
+        )
+
+        wealth['debits'] = wealth['debits'].fillna(0)
+
+        wealth['credits'] = wealth['credits'].fillna(0)
+
+        wealth = wealth[[
+            'person_id',
+            'account_id',
+            'debits',
+            'credits'
+        ]]
+
+        wealth = wealth.groupby([
+            'person_id',
+            'account_id'
+        ])[[
+            'debits',
+            'credits'
+        ]].agg('sum').reset_index()
+
+        wealth['wealth'] = wealth['debits'] - wealth['credits']
+
+        wealth = wealth[[
+            'person_id',
+            'wealth'
+        ]]
+        wealth = wealth.groupby(['person_id'])['wealth'].agg('sum').reset_index()
+
+        pop_wealth.append(wealth)
+        connection.close()
+
+    return wealth
+
+
+def query_customers_by_insurer_id(insurer_ids, bank_name):
+
+    session, connection = connect_bank(bank_name)
+
+    customer_query = session.query(Insurer).statement
+
+    customers = pd.read_sql(customer_query, connection)
+
+    customers = customers[customers['insurer_id'].isin(insurer_ids)]
+
+    customers = customers['customer_id']
+
+    connection.close()
+
+    return customers

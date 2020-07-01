@@ -187,6 +187,32 @@ def query_accounts_by_person_id(person_ids, bank_name, account_type):
     return accounts
 
 
+def query_accounts_by_company_id(insurer_ids, bank_name, account_type):
+    session, connection = connect_bank(bank_name)
+
+    accounts_query = session.query(
+        Insurer.insurer_id,
+        Insurer.customer_id,
+        Account.account_id
+    ).outerjoin(
+        Account,
+        Insurer.customer_id == Account.customer_id
+    ).filter(
+        Account.account_type == account_type
+    ).statement
+
+    accounts = pd.read_sql(
+        accounts_query,
+        connection
+    )
+
+    accounts = accounts[accounts['insurer_id'].isin(insurer_ids)]
+
+    connection.close()
+
+    return accounts
+
+
 def query_incomes(person_ids):
     session, connection = connect_universe()
 

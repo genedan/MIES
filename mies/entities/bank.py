@@ -124,6 +124,7 @@ class Bank:
     def make_transactions(self, data: pd.DataFrame):
         """
         accepts a DataFrame to make multiple transactions
+        need debit, credit, transaction date, transaction amount
         """
         data['debit_account'] = data['debit_account'].astype(int)
         data['credit_account'] = data['credit_account'].astype(int)

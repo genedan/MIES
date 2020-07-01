@@ -5,6 +5,7 @@ import datetime
 from random import choices
 from parameters import INITIAL_PREMIUM
 
+from entities.bank import Bank
 from utilities.connections import(
     connect_universe,
     connect_company
@@ -15,6 +16,8 @@ from utilities.queries import (
     get_uninsured_ids,
     query_company,
     query_all_policies,
+    query_accounts_by_company_id,
+    query_accounts_by_person_id,
     query_in_force_policies,
     query_population
 )
@@ -43,6 +46,7 @@ class Broker:
     def place_business(
             self,
             curr_date,
+            bank: Bank,
             *args
     ):
         free_business = self.identify_free_business(curr_date)
@@ -99,10 +103,11 @@ class Broker:
             ]]
 
             existing_customers = get_customer_ids(company_name)
-            customer = customer[~customer['person_id'].isin(existing_customers['person_id'])]
+            new_customers = customer[~customer['person_id'].isin(existing_customers['person_id'])]
 
             session, connection = connect_company(company_name)
 
+            # populate the policy table
             new_policies.to_sql(
                 'policy',
                 connection,
@@ -110,13 +115,28 @@ class Broker:
                 if_exists='append'
             )
 
-            customer.to_sql(
+            # populate the customer table
+            new_customers.to_sql(
                 'customer',
                 connection,
                 index=False,
                 if_exists='append'
             )
             connection.close()
+
+            # prepare transactions
+            transactions = new_policies[['person_id', 'premium']]
+            transactions = transactions.rename(columns={'premium': 'transaction_amount'})
+            person_ids = transactions['person_id']
+            person_accounts = query_accounts_by_person_id(person_ids, bank.name, 'cash')
+            person_accounts = person_accounts.rename(columns={'account_id': 'credit_account'})
+            transactions = transactions.merge(person_accounts, on='person_id', how='left')
+            transactions['transaction_date'] = curr_date
+            company_account = query_accounts_by_company_id([company], bank.name, 'cash')
+            company_account = company_account['account_id'].squeeze()
+            transactions['debit_account'] = company_account
+            transactions = transactions[['debit_account', 'credit_account', 'transaction_date', 'transaction_amount']]
+            bank.make_transactions(transactions)
 
     def report_claims(self, report_date):
         # match events to policies in which they are covered

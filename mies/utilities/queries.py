@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 
 import schema.bank as bank
 from schema.bank import Account, Insurer, Person, Transaction
-from schema.universe import BankTable, Company, PersonTable
+from schema.universe import BankTable, Company, Event, PersonTable
 from schema.insco import Customer, Policy
 from utilities.connections import (
     connect_universe,
@@ -360,3 +360,18 @@ def query_customers_by_insurer_id(insurer_ids, bank_name):
     connection.close()
 
     return customers
+
+
+def query_events_by_report_date(report_date):
+
+    session, connection = connect_universe()
+
+    event_query = session.query(Event). \
+        filter(Event.report_date == report_date). \
+        statement
+
+    events = pd.read_sql(event_query, connection)
+
+    connection.close()
+
+    return events

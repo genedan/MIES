@@ -6,6 +6,7 @@ from random import choices
 from parameters import INITIAL_PREMIUM
 
 from entities.bank import Bank
+from schema.insco import Claim, ClaimTransaction
 from utilities.connections import(
     connect_universe,
     connect_company
@@ -18,6 +19,7 @@ from utilities.queries import (
     query_all_policies,
     query_accounts_by_company_id,
     query_accounts_by_person_id,
+    query_events_by_report_date,
     query_in_force_policies,
     query_population
 )
@@ -125,31 +127,57 @@ class Broker:
             connection.close()
 
             # prepare transactions
-            transactions = new_policies[['person_id', 'premium']]
+            transactions = new_policies[[
+                'person_id',
+                'premium'
+            ]]
+
             transactions = transactions.rename(columns={'premium': 'transaction_amount'})
+
             person_ids = transactions['person_id']
-            person_accounts = query_accounts_by_person_id(person_ids, bank.name, 'cash')
+
+            person_accounts = query_accounts_by_person_id(
+                person_ids,
+                bank.name,
+                'cash'
+            )
+
             person_accounts = person_accounts.rename(columns={'account_id': 'credit_account'})
-            transactions = transactions.merge(person_accounts, on='person_id', how='left')
+
+            transactions = transactions.merge(
+                person_accounts,
+                on='person_id',
+                how='left'
+            )
+
             transactions['transaction_date'] = curr_date
-            company_account = query_accounts_by_company_id([company], bank.name, 'cash')
+
+            company_account = query_accounts_by_company_id(
+                [company],
+                bank.name,
+                'cash'
+            )
+
             company_account = company_account['account_id'].squeeze()
+
             transactions['debit_account'] = company_account
-            transactions = transactions[['debit_account', 'credit_account', 'transaction_date', 'transaction_amount']]
+
+            transactions = transactions[[
+                'debit_account',
+                'credit_account',
+                'transaction_date',
+                'transaction_amount'
+            ]]
+
             bank.make_transactions(transactions)
 
     def report_claims(self, report_date):
         # match events to policies in which they are covered
-        session, connection = connect_universe()
 
-        event_query = session.query(Event).\
-            filter(Event.report_date == report_date).\
-            statement
-
-        events = pd.read_sql(event_query, connection)
-        connection.close()
+        events = query_events_by_report_date(report_date)
 
         policies = query_all_policies()
+
         claims = events.merge(
             policies,
             on='person_id',
@@ -168,7 +196,11 @@ class Broker:
         ], axis=1)
 
         companies = get_company_names()
+
         for company in companies:
+
+            # register claims by id
+
             reported_claims = claims[claims['company_name'] == company]
 
             reported_claims = reported_claims.rename(columns={
@@ -179,10 +211,31 @@ class Broker:
             reported_claims = reported_claims.drop(['company_name'], axis=1)
 
             session, connection = connect_company(company)
-            reported_claims.to_sql(
-                'claim',
-                connection,
-                index=False,
-                if_exists='append'
-            )
+
+            for index, row in reported_claims.iterrows():
+                claim = Claim(
+                    policy_id=row['policy_id'],
+                    person_id=row['person_id'],
+                    event_id=row['event_id'],
+                    occurrence_date=row['occurrence_date'],
+                    report_date=row['report_date']
+                )
+                open_claim = ClaimTransaction(
+                    transaction_date=row['report_date'],
+                    transaction_type='open claim',
+                    transaction_amount=0
+                )
+                case_reserve = ClaimTransaction(
+                    transaction_date=row['report_date'],
+                    transaction_type='set case reserve',
+                    transaction_amount=row['incurred_loss']
+                )
+                claim.claim_transaction.append(open_claim)
+                claim.claim_transaction.append(case_reserve)
+                session.add(claim)
+                session.commit()
+
             connection.close()
+
+
+

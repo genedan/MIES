@@ -161,3 +161,6 @@ class Insurer:
         )
         connection.close()
         return in_force
+
+    # def pay_claims(self):
+

@@ -39,6 +39,12 @@ rayon.place_business(
         company_1
     )
 
+event_date = pricing_date + dt.timedelta(days=1)
+
+ahura.smite(event_date)
+
+rayon.report_claims(event_date)
+
 test = query_population_wealth()
 
 test

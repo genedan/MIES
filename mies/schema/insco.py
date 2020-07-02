@@ -82,22 +82,66 @@ class Claim(Base):
         ForeignKey('policy.policy_id')
     )
     person_id = Column(Integer)
+
     event_id = Column(Integer)
+
     occurrence_date = Column(Date)
+
     report_date = Column(Date)
-    incurred_loss = Column(Float)
+
+    claim_transaction = relationship(
+        'ClaimTransaction',
+        primaryjoin='Claim.claim_id == ClaimTransaction.claim_id',
+        back_populates='claim'
+    )
 
     def __repr__(self):
         return "<Claim(policy_id ='%s'," \
                "person_id ='%s', " \
                "event_id='%s', " \
                "occurrence_date='%s'," \
-               "report_date='%s'," \
-               "incurred_loss='%s')>" % (
+               "report_date='%s')>" % (
                 self.policy_id,
                 self.person_id,
                 self.event_id,
                 self.occurence_date,
-                self.report_date,
-                self.incurred_loss
+                self.report_date
+                )
+
+
+class ClaimTransaction(Base):
+    __tablename__ = 'claim_transaction'
+
+    claim_transaction_id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    claim_id = Column(
+        Integer,
+        ForeignKey('claim.claim_id')
+    )
+
+    transaction_date = Column(Date)
+
+    transaction_type = Column(String)
+
+    transaction_amount = Column(Float)
+
+    claim = relationship(
+        'Claim',
+        primaryjoin='ClaimTransaction.claim_id == Claim.claim_id',
+        back_populates='claim_transaction'
+    )
+
+    def __repr__(self):
+        return "<ClaimTransaction(policy_id ='%s'," \
+               "claim_id ='%s', " \
+               "transaction_date='%s', " \
+               "transaction_type='%s'," \
+               "transaction_amount" % (
+                self.claim_id,
+                self.transaction_date,
+                self.transaction_type,
+                self.transaction_amount
                 )

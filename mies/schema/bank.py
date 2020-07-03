@@ -34,11 +34,6 @@ class Account(Base):
         back_populates='account_credit'
     )
 
-    # transaction = relationship(
-    #     "Transaction",
-    #     back_populates='account_debit'
-    # )
-
     def __repr__(self):
         return "<Account(" \
                "customer_id='%s', " \
@@ -118,6 +113,12 @@ class Customer(Base):
         back_populates='customer'
     )
 
+    bank = relationship(
+        'Bank',
+        primaryjoin='Customer.customer_id == Bank.customer_id',
+        back_populates='customer'
+    )
+
 
 class Person(Base):
     __tablename__ = 'person'
@@ -135,7 +136,8 @@ class Person(Base):
     customer = relationship(
         'Customer',
         primaryjoin='Person.customer_id == Customer.customer_id',
-        back_populates='person'
+        back_populates='person',
+        uselist=True
     )
 
 
@@ -155,5 +157,27 @@ class Insurer(Base):
     customer = relationship(
         'Customer',
         primaryjoin='Insurer.customer_id == Customer.customer_id',
-        back_populates='insurer'
+        back_populates='insurer',
+        uselist=True
+    )
+
+
+class Bank(Base):
+    __tablename__ = 'bank'
+
+    bank_id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    customer_id = Column(
+        Integer,
+        ForeignKey('customer.customer_id')
+    )
+
+    customer = relationship(
+        'Customer',
+        primaryjoin='Bank.customer_id == Customer.customer_id',
+        back_populates='bank',
+        uselist=True
     )

@@ -204,14 +204,14 @@ class Broker:
             reported_claims = claims[claims['company_name'] == company]
 
             reported_claims = reported_claims.rename(columns={
-                'event_date': 'occurrence_date',
-                'ground_up_loss': 'incurred_loss'
+                'event_date': 'occurrence_date'
             })
 
             reported_claims = reported_claims.drop(['company_name'], axis=1)
 
             session, connection = connect_company(company)
 
+            objects = []
             for index, row in reported_claims.iterrows():
                 claim = Claim(
                     policy_id=row['policy_id'],
@@ -228,12 +228,14 @@ class Broker:
                 case_reserve = ClaimTransaction(
                     transaction_date=row['report_date'],
                     transaction_type='set case reserve',
-                    transaction_amount=row['incurred_loss']
+                    transaction_amount=row['ground_up_loss']
                 )
                 claim.claim_transaction.append(open_claim)
                 claim.claim_transaction.append(case_reserve)
-                session.add(claim)
-                session.commit()
+                objects.append(claim)
+
+            session.add_all(objects)
+            session.commit()
 
             connection.close()
 

@@ -11,10 +11,12 @@ from sqlalchemy.orm import sessionmaker
 
 import schema.insco as insco
 from entities.bank import Bank
-from schema.insco import Claim, Customer, Policy
+from schema.insco import Claim, ClaimTransaction, Customer, Policy
 from schema.universe import Company
 from utilities.connections import connect_company
 from utilities.queries import query_customers_by_insurer_id
+from utilities.queries import query_open_case_reserves
+from utilities.queries import query_accounts_by_person_id
 
 
 class Insurer:
@@ -162,5 +164,62 @@ class Insurer:
         connection.close()
         return in_force
 
-    # def pay_claims(self):
+    def pay_claims(self, transaction_date):
+        # send checks to bank
+        case_reserves = query_open_case_reserves(self.company_name)
 
+        accounts_to_pay = query_accounts_by_person_id(
+            case_reserves['person_id'],
+            self.bank.name, 'cash'
+        )
+
+        case_reserves = case_reserves.merge(
+            accounts_to_pay,
+            on='person_id',
+            how='left'
+        )
+
+        case_reserves['transaction_date'] = transaction_date
+
+        case_reserves = case_reserves.rename(columns={
+            'case reserve': 'transaction_amount',
+            'account_id': 'debit_account'
+        })
+
+        case_reserves['credit_account'] = self.cash_account
+
+        payments = case_reserves[[
+            'debit_account',
+            'credit_account',
+            'transaction_date',
+            'transaction_amount']].copy()
+
+        self.bank.make_transactions(payments)
+
+        # people then use checks to pay their for their own losses
+
+        payments = payments.rename(
+            columns={
+                'debit_account': 'credit_account',
+            }
+        )
+
+        payments['debit_account'] = self.bank.liability_account
+
+        self.bank.make_transactions(payments)
+
+
+        # reduce case reserves
+
+        objects = []
+
+        for index, row in case_reserves.iterrows():
+            reserve_takedown = ClaimTransaction(
+                transaction_date=row['transaction_date'],
+                transaction_type='reduce case reserve',
+                transaction_amount=row['transaction_amount']
+            )
+        objects.append(reserve_takedown)
+
+        self.session.add_all(objects)
+        self.session.commit()

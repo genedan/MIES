@@ -17,7 +17,7 @@ pricing_date = dt.date(1, 12, 31)
 population = query_population()
 ids = population['person_id']
 
-blargo.get_customers(ids=ids, customer_type='person')
+test = blargo.get_customers(ids=ids, customer_type='person')
 customer_ids = query_customers_by_person_id(ids, 'blargo')
 blargo.assign_accounts(customer_ids=customer_ids, account_type='cash')
 ahura.grant_wealth(person_ids=ids, bank=blargo, transaction_date=pricing_date)
@@ -45,9 +45,8 @@ ahura.smite(event_date)
 
 rayon.report_claims(event_date)
 
-test = query_population_wealth()
+company_1.pay_claims(event_date)
 
-test
+
 
 ahura.annihilate()
-

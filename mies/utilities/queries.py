@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 import schema.bank as bank
 from schema.bank import Account, Insurer, Person, Transaction
 from schema.universe import BankTable, Company, Event, PersonTable
-from schema.insco import Customer, Policy
+from schema.insco import Claim, ClaimTransaction, Customer, Policy
 from utilities.connections import (
     connect_universe,
     connect_company,
@@ -375,3 +375,76 @@ def query_events_by_report_date(report_date):
     connection.close()
 
     return events
+
+
+def query_open_case_reserves(company_name):
+    session, connection = connect_company(company_name)
+
+    rank_query = session.query(ClaimTransaction,
+                               func.rank().over(
+                                   order_by=ClaimTransaction.transaction_date,
+                                   partition_by=ClaimTransaction.claim_id
+                               ).label('rnk')). \
+        filter(ClaimTransaction.
+               transaction_type.in_([
+                    'open claim',
+                    'close claim',
+                    'reopen claim'])).subquery()
+
+    sub_query = session.query(
+        rank_query.c.claim_id,
+        func.max(rank_query.c.rnk).label('maxrnk')).\
+        group_by(rank_query.c.claim_id).subquery()
+
+    open_query = session.query(
+        rank_query.c.claim_id,
+        rank_query.c.transaction_type).\
+        join(
+            sub_query,
+            ((rank_query.c.claim_id == sub_query.c.claim_id) &
+             (rank_query.c.rnk == sub_query.c.maxrnk))).statement
+
+    open_claims = pd.read_sql(
+        open_query,
+        connection)
+
+    open_claims['status'] = np.where(
+        ~open_claims['transaction_type'].isin(['close claim']),
+        'open',
+        'closed'
+    )
+
+    open_claims = open_claims[open_claims['status'] == 'open']
+
+    open_claims = list(open_claims['claim_id'])
+
+    # add up case reserves over open claims
+
+    case_t_query = session.query(ClaimTransaction).\
+        filter(ClaimTransaction.transaction_type == 'set case reserve'). \
+        filter(ClaimTransaction.claim_id.in_(open_claims)).subquery()
+
+    case_query = session.query(
+        case_t_query.c.claim_id,
+        func.sum(case_t_query.c.transaction_amount).
+        label('case reserve')).group_by(case_t_query.c.claim_id).subquery()
+
+    claim_query = session.query(
+        Claim.claim_id,
+        Claim.person_id
+    ).subquery()
+
+    result_query = session.query(
+        case_query,
+        claim_query.c.person_id
+    ).outerjoin(
+        claim_query,
+        case_query.c.claim_id == claim_query.c.claim_id
+    ).statement
+
+    case_outstanding = pd.read_sql(
+        result_query,
+        connection
+    )
+
+    return case_outstanding

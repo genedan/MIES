@@ -1,4 +1,3 @@
-import datetime as dt
 import numpy as np
 import os
 import pandas as pd
@@ -77,7 +76,6 @@ class Insurer:
         self.liability_account = self.bank.assign_account(customer_id, 'liability')
         self.capital_account = self.bank.assign_account(customer_id, 'capital')
         self.bank.make_transaction(self.cash_account, self.liability_account, transaction_date, self.capital)
-
 
     def price_book(
         self,
@@ -215,11 +213,26 @@ class Insurer:
 
         for index, row in case_reserves.iterrows():
             reserve_takedown = ClaimTransaction(
+                claim_id = row['claim_id'],
                 transaction_date=row['transaction_date'],
                 transaction_type='reduce case reserve',
                 transaction_amount=row['transaction_amount']
             )
-        objects.append(reserve_takedown)
+            claim_payment = ClaimTransaction(
+                claim_id=row['claim_id'],
+                transaction_date=row['transaction_date'],
+                transaction_type='claim payment',
+                transaction_amount=row['transaction_amount']
+            )
+            close_claim = ClaimTransaction(
+                claim_id=row['claim_id'],
+                transaction_date=row['transaction_date'],
+                transaction_type='close claim',
+                transaction_amount=0
+            )
+            objects.append(reserve_takedown)
+            objects.append(claim_payment)
+            objects.append(close_claim)
 
         self.session.add_all(objects)
         self.session.commit()

@@ -4,9 +4,7 @@ from entities.insurer import Insurer
 from utilities.queries import query_population
 from entities.bank import Bank
 from entities.god import God
-from utilities.queries import query_accounts_by_person_id
-from utilities.queries import query_customers_by_person_id, query_population_wealth
-
+from utilities.queries import query_customers_by_person_id
 
 ahura = God()
 ahura.make_population(1000)
@@ -45,8 +43,11 @@ ahura.smite(event_date)
 
 rayon.report_claims(event_date)
 
-company_1.pay_claims(event_date)
+company_1.pay_claims(event_date + dt.timedelta(days=1))
 
-
+from utilities.queries import query_open_case_reserves
+from utilities.queries import query_case_by_claim
+query_open_case_reserves('company_1')
+query_case_by_claim('company_1')
 
 ahura.annihilate()

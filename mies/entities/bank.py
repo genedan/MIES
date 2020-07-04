@@ -8,7 +8,7 @@ import schema.bank as bank
 from schema.bank import Account, Customer, Insurer, Person, Transaction
 from schema.bank import Bank as BankTable
 from utilities.connections import connect_universe
-from utilities.queries import query_bank_id, query_last_bank_customer_id
+from utilities.queries import query_bank_id
 
 
 class Bank:

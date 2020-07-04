@@ -8,7 +8,6 @@ from parameters import INITIAL_PREMIUM
 from entities.bank import Bank
 from schema.insco import Claim, ClaimTransaction
 from utilities.connections import(
-    connect_universe,
     connect_company
 )
 from utilities.queries import (
@@ -22,10 +21,6 @@ from utilities.queries import (
     query_events_by_report_date,
     query_in_force_policies,
     query_population
-)
-
-from schema.universe import (
-    Event
 )
 
 

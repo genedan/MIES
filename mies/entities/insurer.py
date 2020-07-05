@@ -16,6 +16,7 @@ from utilities.connections import connect_company
 from utilities.queries import query_customers_by_insurer_id
 from utilities.queries import query_open_case_reserves
 from utilities.queries import query_accounts_by_person_id
+from utilities.queries import query_pricing_model_data
 
 
 class Insurer:
@@ -81,30 +82,8 @@ class Insurer:
         self,
         pricing_formula
     ):
-        book_query = self.session.query(
-            Policy.policy_id,
-            Policy.person_id,
-            Customer.age_class,
-            Customer.profession,
-            Customer.health_status,
-            Customer.education_level,
-            Claim.incurred_loss).outerjoin(
-                Claim,
-                Claim.policy_id == Policy.policy_id).\
-            outerjoin(Customer, Policy.person_id == Customer.person_id).statement
 
-        book = pd.read_sql(book_query, self.connection)
-
-        book = book.groupby([
-            'policy_id',
-            'person_id',
-            'age_class',
-            'profession',
-            'health_status',
-            'education_level']
-        ).agg({'incurred_loss': 'sum'}).reset_index()
-
-        book['rands'] = np.random.uniform(size=len(book))
+        book = query_pricing_model_data(self.company_name)
 
         self.pricing_model = smf.glm(
             formula=pricing_formula,

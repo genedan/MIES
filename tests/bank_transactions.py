@@ -47,7 +47,22 @@ company_1.pay_claims(event_date + dt.timedelta(days=1))
 
 from utilities.queries import query_open_case_reserves
 from utilities.queries import query_case_by_claim
+from utilities.queries import query_paid_by_claim
+from utilities.queries import query_incurred_by_claim
+from utilities.queries import query_pricing_model_data
+
 query_open_case_reserves('company_1')
 query_case_by_claim('company_1')
+query_paid_by_claim('company_1')
+query_incurred_by_claim('company_1')
+
+company_1.price_book(company_1_formula)
+
+rayon.place_business(
+        pricing_date,
+        blargo,
+        company_1
+    )
+
 
 ahura.annihilate()

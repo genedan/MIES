@@ -1,6 +1,5 @@
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
-import schema.universe as universe
 
 
 def connect_universe():

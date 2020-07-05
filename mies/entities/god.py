@@ -10,8 +10,8 @@ from scipy.stats import gamma
 from scipy.stats import pareto
 from numpy.random import poisson
 
-from entities.bank import Bank
-from utilities.queries import query_population, query_accounts_by_person_id, query_incomes
+from mies.entities.bank import Bank
+from mies.utilities.queries import query_population, query_accounts_by_person_id, query_incomes
 
 
 class God:

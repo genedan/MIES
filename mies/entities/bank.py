@@ -4,11 +4,11 @@ import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
 
-import schema.bank as bank
-from schema.bank import Account, Customer, Insurer, Person, Transaction
-from schema.bank import Bank as BankTable
-from utilities.connections import connect_universe
-from utilities.queries import query_bank_id
+import mies.schema.bank as bank
+from mies.schema.bank import Account, Customer, Insurer, Person, Transaction
+from mies.schema.bank import Bank as BankTable
+from mies.utilities.connections import connect_universe
+from mies.utilities.queries import query_bank_id
 
 
 class Bank:

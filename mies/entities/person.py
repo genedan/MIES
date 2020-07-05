@@ -4,11 +4,11 @@ import plotly.graph_objects as go
 
 from plotly.offline import plot
 
-from econtools.budget import Good, Budget
-from econtools.slutsky import Slutsky
-from econtools.utility import CobbDouglas
-from parameters import INITIAL_PREMIUM
-from utilities.queries import query_person, query_policy, query_policy_history
+from mies.econtools.budget import Good, Budget
+from mies.econtools.slutsky import Slutsky
+from mies.econtools.utility import CobbDouglas
+from mies.parameters import INITIAL_PREMIUM
+from mies.utilities.queries import query_person, query_policy, query_policy_history
 
 
 class Person:

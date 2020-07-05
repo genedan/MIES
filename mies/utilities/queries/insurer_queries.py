@@ -3,16 +3,16 @@ import pandas as pd
 from sqlalchemy.sql import func
 
 
-from schema.universe import Event
+from mies.schema.universe import Event
 
-from schema.insco import (
+from mies.schema.insco import (
     Claim,
     ClaimTransaction,
     Customer,
     Policy
 )
 
-from utilities.connections import (
+from mies.utilities.connections import (
     connect_universe,
     connect_company)
 

@@ -5,12 +5,12 @@ import datetime
 from random import choices
 from parameters import INITIAL_PREMIUM
 
-from entities.bank import Bank
-from schema.insco import Claim, ClaimTransaction
-from utilities.connections import(
+from mies.entities.bank import Bank
+from mies.schema.insco import Claim, ClaimTransaction
+from mies.utilities.connections import(
     connect_company
 )
-from utilities.queries import (
+from mies.utilities.queries import (
     get_company_names,
     get_customer_ids,
     get_uninsured_ids,

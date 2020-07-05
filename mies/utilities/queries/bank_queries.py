@@ -1,13 +1,12 @@
 import pandas as pd
-from sqlalchemy.sql import func
 
-from schema.bank import (
+from mies.schema.bank import (
     Account,
     Insurer,
     Person
 )
 
-from utilities.connections import connect_bank
+from mies.utilities.connections import connect_bank
 
 
 def query_accounts_by_person_id(person_ids, bank_name, account_type):

@@ -3,21 +3,21 @@
 import pandas as pd
 from sqlalchemy.sql import func
 
-from schema.bank import Transaction
+from mies.schema.bank import Transaction
 
-from schema.insco import Policy
+from mies.schema.insco import Policy
 
-from schema.universe import (
+from mies.schema.universe import (
     BankTable,
     Company,
     PersonTable)
 
-from utilities.connections import (
+from mies.utilities.connections import (
     connect_bank,
     connect_universe,
     connect_company)
 
-from utilities.queries.bank_queries import (
+from mies.utilities.queries.bank_queries import (
     query_accounts_by_person_id
 )
 

@@ -8,15 +8,15 @@ import sqlalchemy as sa
 
 from sqlalchemy.orm import sessionmaker
 
-import schema.insco as insco
-from entities.bank import Bank
-from schema.insco import Claim, ClaimTransaction, Customer, Policy
-from schema.universe import Company
-from utilities.connections import connect_company
-from utilities.queries import query_customers_by_insurer_id
-from utilities.queries import query_open_case_reserves
-from utilities.queries import query_accounts_by_person_id
-from utilities.queries import query_pricing_model_data
+import mies.schema.insco as insco
+from mies.entities.bank import Bank
+from mies.schema.insco import Claim, ClaimTransaction, Customer, Policy
+from mies.schema.universe import Company
+from mies.utilities.connections import connect_company
+from mies.utilities.queries import query_customers_by_insurer_id
+from mies.utilities.queries import query_open_case_reserves
+from mies.utilities.queries import query_accounts_by_person_id
+from mies.utilities.queries import query_pricing_model_data
 
 
 class Insurer:

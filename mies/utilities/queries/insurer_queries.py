@@ -126,7 +126,21 @@ def query_pricing_model_data(company_name):
         ).outerjoin(
             Customer,
             Policy.person_id == Customer.person_id
-        ).subquery()
+        ).statement
+
+    policy = pd.read_sql(policy_query, connection)
+
+    claim = query_incurred_by_claim(company_name)
+
+    claim = claim.drop(columns=['claim_id', 'paid_loss', 'case_reserve'], axis=1)
+
+    claim = claim.groupby(['policy_id'])['incurred_loss'].agg('sum')
+
+    model_set = policy.merge(claim, on='policy_id', how='left')
+
+    model_set['incurred_loss'] = model_set['incurred_loss'].fillna(0)
+
+    return model_set
 
 
 def query_policy(company_name, policy_id):
@@ -139,6 +153,11 @@ def query_policy(company_name, policy_id):
 
 def query_case_by_claim(company_name):
     session, connection = connect_company(company_name)
+
+    claim_policy = session.query(
+        Claim.claim_id,
+        Claim.policy_id
+    ).subquery()
 
     case_set = session.query(
         ClaimTransaction.claim_id,
@@ -153,8 +172,56 @@ def query_case_by_claim(company_name):
     case_query = session.query(
         case_set.c.claim_id,
         (func.ifnull(case_set.c.set, 0) - func.ifnull(case_takedown.c.takedown, 0)).label('case_reserve')
-    ).outerjoin(case_takedown, case_set.c.claim_id == case_takedown.c.claim_id).statement
+    ).outerjoin(case_takedown, case_set.c.claim_id == case_takedown.c.claim_id).subquery()
 
-    case_reserve = pd.read_sql(case_query, connection)
+    claim_case = session.query(
+        claim_policy.c.claim_id,
+        claim_policy.c.policy_id,
+        func.ifnull(case_query.c.case_reserve, 0).label('case_reserve')
+    ).outerjoin(case_query, claim_policy.c.claim_id == case_query.c.claim_id).statement
+
+    case_reserve = pd.read_sql(claim_case, connection)
+
+    connection.close()
 
     return case_reserve
+
+
+def query_paid_by_claim(company_name):
+    session, connection = connect_company(company_name)
+
+    claim_policy = session.query(
+        Claim.claim_id,
+        Claim.policy_id
+    ).subquery()
+
+    payment_query = session.query(
+        ClaimTransaction.claim_id,
+        func.sum(ClaimTransaction.transaction_amount).label('paid_loss')
+    ).filter(ClaimTransaction.transaction_type == 'claim payment').group_by(ClaimTransaction.claim_id).subquery()
+
+    claim_paid = session.query(
+        claim_policy.c.claim_id,
+        claim_policy.c.policy_id,
+        func.ifnull(payment_query.c.paid_loss, 0).label('paid_loss')
+    ).outerjoin(payment_query, claim_policy.c.claim_id == payment_query.c.claim_id).statement
+
+    claim_payments = pd.read_sql(claim_paid, connection)
+
+    connection.close()
+
+    return claim_payments
+
+
+def query_incurred_by_claim(company_name):
+
+    case = query_case_by_claim(company_name)
+    case = case.drop(columns=['policy_id'], axis=1)
+
+    paid = query_paid_by_claim(company_name)
+
+    incurred = paid.merge(case, on='claim_id', how='left')
+
+    incurred['incurred_loss'] = incurred['paid_loss'] + incurred['case_reserve']
+
+    return incurred

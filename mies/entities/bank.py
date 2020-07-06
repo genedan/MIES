@@ -72,8 +72,7 @@ class Bank:
             )
             customer_type_table.customer.append(customer)
             objects.append(customer_type_table)
-            #self.session.add(customer_type_table)
-            #self.session.commit()
+
         self.session.add_all(objects)
         self.session.commit()
 

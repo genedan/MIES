@@ -1,16 +1,15 @@
 import datetime as dt
-from entities.broker import Broker
-from entities.insurer import Insurer
-from utilities.queries import query_population
-from entities.bank import Bank
-from entities.god import God
+from mies.entities.bank import Bank
+from mies.entities.broker import Broker
+from mies.entities.god import God
+from mies.entities.insurer import Insurer
+from mies.utilities.queries import query_population
 from utilities.queries import query_customers_by_person_id
 
 ahura = God()
 ahura.make_population(1000)
 
 blargo = Bank(4000000, 'blargo')
-blargo.id
 pricing_date = dt.date(1, 12, 31)
 population = query_population()
 ids = population['person_id']
@@ -45,6 +44,8 @@ rayon.report_claims(event_date)
 
 company_1.pay_claims(event_date + dt.timedelta(days=1))
 
+ahura.send_paychecks(person_ids=ids, bank=blargo, transaction_date=event_date + dt.timedelta(days=1))
+
 from utilities.queries import query_open_case_reserves
 from utilities.queries import query_case_by_claim
 from utilities.queries import query_paid_by_claim
@@ -55,6 +56,8 @@ query_open_case_reserves('company_1')
 query_case_by_claim('company_1')
 query_paid_by_claim('company_1')
 query_incurred_by_claim('company_1')
+
+query_pricing_model_data('company_1')
 
 company_1.price_book(company_1_formula)
 

@@ -16,8 +16,7 @@ from mies.utilities.queries import query_population, query_accounts_by_person_id
 
 class God:
     """
-    The supreme entity, overseer of all space, time, matter and energy.
-    Ruler of all unexplained variance and exogenous variables
+    The supreme entity, overseer of all space, time, matter and energy, ruler of all unexplained variance.
     """
     def __init__(self):
         if not os.path.exists('db'):

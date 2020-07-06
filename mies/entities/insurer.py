@@ -175,12 +175,7 @@ class Insurer:
 
         # people then use checks to pay their for their own losses
 
-        payments = payments.rename(
-            columns={
-                'debit_account': 'credit_account',
-            }
-        )
-
+        payments['credit_account'] = payments['debit_account']
         payments['debit_account'] = self.bank.liability_account
 
         self.bank.make_transactions(payments)

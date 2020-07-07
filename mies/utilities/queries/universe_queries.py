@@ -146,6 +146,99 @@ def query_person(person_id):
     return person
 
 
+def query_person_wealth(person_id):
+    """
+    returns the wealth for one person
+    """
+    banks = query_banks()
+
+    person_wealth = pd.DataFrame()
+
+    for index, row in banks.iterrows():
+        bank_name = row['bank_name']
+
+        session, connection = connect_bank(bank_name)
+
+        person_accounts = query_accounts_by_person_id(
+            person_id,
+            bank_name,
+            'cash'
+        )
+
+        account_list = list(person_accounts['account_id'])
+
+        debit_query = session.query(
+            Transaction.debit_account.label('account_id'),
+            func.sum(Transaction.transaction_amount).label('debits')
+        ).group_by(
+            Transaction.debit_account
+        ).filter(
+            Transaction.debit_account.in_(account_list)
+        ).statement
+
+        debit_amounts = pd.read_sql(
+            debit_query,
+            connection
+        )
+
+        credit_query = session.query(
+            Transaction.credit_account.label('account_id'),
+            func.sum(Transaction.transaction_amount).label('credits')
+        ).group_by(Transaction.credit_account).filter(
+            Transaction.debit_account.in_(account_list)
+        ).statement
+
+        credit_amounts = pd.read_sql(
+            credit_query,
+            connection
+        )
+
+        wealth = person_accounts.merge(
+            debit_amounts,
+            on='account_id',
+            how='left'
+        )
+
+        wealth = wealth.merge(
+            credit_amounts,
+            on='account_id',
+            how='left'
+        )
+
+        wealth['debits'] = wealth['debits'].fillna(0)
+
+        wealth['credits'] = wealth['credits'].fillna(0)
+
+        wealth = wealth[[
+            'person_id',
+            'account_id',
+            'debits',
+            'credits'
+        ]]
+
+        wealth = wealth.groupby([
+            'person_id',
+            'account_id'
+        ])[[
+            'debits',
+            'credits'
+        ]].agg('sum').reset_index()
+
+        wealth['wealth'] = wealth['debits'] - wealth['credits']
+
+        wealth = wealth[[
+            'person_id',
+            'wealth'
+        ]]
+        wealth = wealth.groupby(['person_id'])['wealth'].agg('sum').reset_index()
+
+        person_wealth = person_wealth.append(wealth)
+        connection.close()
+
+    person_wealth = person_wealth.groupby(['person_id'])['wealth'].agg('sum').reset_index()
+    return person_wealth
+
+
 def query_policy_history(person_id):
     policies = query_all_policies()
     policies = policies[policies['person_id'] == person_id]
@@ -187,6 +280,7 @@ def query_population_wealth():
             debit_query,
             connection
         )
+
         debit_amounts.columns = [
             'account_id',
             'debits'
@@ -251,10 +345,12 @@ def query_population_wealth():
         ]]
         wealth = wealth.groupby(['person_id'])['wealth'].agg('sum').reset_index()
 
-        pop_wealth.append(wealth)
+        pop_wealth = pop_wealth.append(wealth)
         connection.close()
 
-    return wealth
+    pop_wealth = pop_wealth.groupby(['person_id'])['wealth'].agg('sum').reset_index()
+
+    return pop_wealth
 
 
 def get_uninsured_ids(curr_date):

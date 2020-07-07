@@ -4,11 +4,21 @@ import plotly.graph_objects as go
 
 from plotly.offline import plot
 
-from mies.econtools.budget import Good, Budget
+from mies.econtools.budget import (
+    Good,
+    Budget
+)
+
+from mies.econtools.hicks import Hicks
 from mies.econtools.slutsky import Slutsky
 from mies.econtools.utility import CobbDouglas
 from mies.parameters import INITIAL_PREMIUM
-from mies.utilities.queries import query_person, query_policy, query_policy_history
+from mies.utilities.queries import (
+    query_person,
+    query_policy,
+    query_person_wealth,
+    query_policy_history
+)
 
 
 class Person:
@@ -36,6 +46,8 @@ class Person:
         self.engel = None
         self.demand = None
         self.slutsky = None
+        self.hicks = None
+        self.wealth = None
 
     def get_policy_history(self):
         self.policy_history = query_policy_history(self.id)
@@ -210,3 +222,19 @@ class Person:
             'title': 'Slutsky Decomposition for Person ' + str(self.id)
         })
         self.slutsky.plot['layout'].update({'title_x': 0.5})
+
+    def calculate_hicks(self, new_budget):
+        self.hicks = Hicks(
+            old_budget=self.budget,
+            new_budget=new_budget,
+            utility_function=self.utility
+        )
+        self.hicks.plot['layout'].update({
+            'title': 'Hicks Decomposition for Person ' + str(self.id)
+        })
+        self.hicks.plot['layout'].update({'title_x': 0.5})
+
+    def calculate_wealth(self):
+        wealth = query_person_wealth([self.id])
+        wealth = wealth['wealth'].squeeze()
+        self.wealth = wealth

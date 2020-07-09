@@ -134,11 +134,18 @@ class Person:
     def get_demand(self):
         # only works for Cobb Douglas right now
 
-        def d(p):
+        def d(
+            p1,
+            p2=1,
+            m=None
+        ):
+            if m is None:
+                m = self.income
+
             return self.utility.optimal_bundle(
-                p1=p,
+                p1=p1,
                 p2=1,
-                m=self.income
+                m=m
             )[0]
 
         self.demand = d

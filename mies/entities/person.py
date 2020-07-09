@@ -104,10 +104,16 @@ class Person:
 
     def get_offer(self):
         # only works for Cobb Douglas right now
-        def o(m):
+        def o(
+            m,
+            p1=None,
+            p2=1
+        ):
+            if p1 is None:
+                p1 = self.premium
             return self.utility.optimal_bundle(
-                p1=self.premium,
-                p2=1,
+                p1=p1,
+                p2=p2,
                 m=m
             )
 
@@ -140,10 +146,16 @@ class Person:
     def show_consumption(self):
         plot(self.consumption_figure)
 
-    def show_offer(self):
+    def show_offer(self, p1=None, fix_prices=False):
         offer_frame = pd.DataFrame(columns=['income'])
-        offer_frame['income'] = np.arange(0, self.income * 2, 1000)
-        offer_frame['x1'], offer_frame['x2'] = self.offer(offer_frame['income'])[:2]
+
+        if not fix_prices:
+            offer_frame['price'] = np.linspace(0, p1 * 5, 100)
+            offer_frame['income'] = offer_frame['price']
+            offer_frame['x1'], offer_frame['x2'] = self.offer(p1=offer_frame['price'], m=offer_frame['income'])[:2]
+        else:
+            offer_frame['income'] = np.linspace(0, self.income * 2, 100)
+            offer_frame['x1'], offer_frame['x2'] = self.offer(m=offer_frame['income'])[:2]
 
         offer_trace = {
             'x': offer_frame['x1'],

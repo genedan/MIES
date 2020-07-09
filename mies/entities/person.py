@@ -69,11 +69,15 @@ class Person:
             insurance = Good(self.premium, name='Insurance')
         self.budget = Budget(insurance, all_other, income=self.income, name='Budget')
 
-    def get_consumption(self):
+    def get_consumption(self, p1=None, p2=1, m=None):
+        if p1 is None:
+            p1 = self.premium
+        if m is None:
+            m = self.income
         self.optimal_bundle = self.utility.optimal_bundle(
-            p1=self.premium,
-            p2=1,
-            m=self.income
+            p1=p1,
+            p2=p2,
+            m=m
         )
 
     def get_consumption_figure(self):

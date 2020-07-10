@@ -31,12 +31,11 @@ print(my_person.optimal_bundle)
 
 # if price of good 1 decreases, person must remain a net buyer:
 
-good_1 = Good(price=.5, name='good_1')
+good_1.price = .5
 endowment_value = 5 * good_1.price + 5 * good_2.price
 my_person.income = endowment_value
 
 budget = Budget(good_x=good_1, good_y=good_2, income=endowment_value)
-my_person.income = endowment_value
 my_person.budget = budget
 my_person.premium = good_1.price
 my_person.get_consumption(p1=good_1.price, p2=good_2.price)

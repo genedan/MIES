@@ -33,13 +33,18 @@ class Good:
         self.price = price
         self.tax = tax
         self.subsidy = subsidy
-        self.adjusted_price = self.apply_tax(self.price)
-        self.adjusted_price = self.apply_subsidy(self.adjusted_price)
+
         if ration is None:
             self.ration = np.Inf
         else:
             self.ration = ration
         self.name = name
+
+    @property
+    def adjusted_price(self):
+        adjusted_price = self.apply_tax(self.price)
+        adjusted_price = self.apply_subsidy(adjusted_price)
+        return adjusted_price
 
     def apply_tax(self, price):
         if (self.tax is None) or (self.tax.style == 'lump_sum'):

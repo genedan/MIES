@@ -1,5 +1,5 @@
 # test if theoretical properties of endowment are satisfied
-from econtools.budget import Budget, Good
+from econtools.budget import Budget, Endowment, Good
 from econtools.utility import CobbDouglas
 from entities.person import Person
 
@@ -11,10 +11,23 @@ good_1 = Good(price=1, name='good_1')
 
 good_2 = Good(price=1, name='good_2')
 
+endowment = Endowment(good_x=good_1, good_y=good_2, good_x_quantity=5, good_y_quantity=5)
+
+# test equivalence of initialization methods
+
 endowment_value = 5 * good_1.price + 5 * good_2.price
 my_person.income = endowment_value
 
-budget = Budget(good_x=good_1, good_y=good_2, income=endowment_value)
+budget_bundle = Budget(good_x=good_1, good_y=good_2, income=endowment_value)
+budget_endowment = Budget.from_endowment(endowment=endowment)
+
+print(budget_bundle.good_x == budget_endowment.good_x)
+print(budget_bundle.good_y == budget_endowment.good_y)
+print(budget_bundle.income == budget_endowment.income)
+print(budget_bundle.x_lim == budget_endowment.x_lim)
+print(budget_bundle.y_lim == budget_endowment.y_lim)
+
+budget = budget_endowment
 
 budget.show_plot()
 

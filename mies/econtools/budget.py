@@ -65,6 +65,25 @@ class Good:
             return price * (1 - self.subsidy.amount)
 
 
+class Endowment:
+    def __init__(
+            self,
+            good_x: Good,
+            good_y: Good,
+            good_x_quantity: float,
+            good_y_quantity: float,
+            ):
+        self.good_x = good_x
+        self.good_y = good_y
+        self.good_x_quantity = good_x_quantity
+        self.good_y_quantity = good_y_quantity
+
+    @property
+    def income(self):
+        income = self.good_x.price * self.good_x_quantity + self.good_y.price * self.good_y_quantity
+        return income
+
+
 class Budget:
     def __init__(self, good_x, good_y, income, name=None):
         self.good_x = good_x
@@ -73,6 +92,17 @@ class Budget:
         self.x_lim = self.income / (min(self.good_x.adjusted_price, self.good_x.price)) * 1.2
         self.y_lim = self.income / (min(self.good_y.adjusted_price, self.good_y.price)) * 1.2
         self.name = name
+
+    @classmethod
+    def from_bundle(cls, good_x, good_y, income, name=None):
+        return cls(good_x, good_y, income, name)
+
+    @classmethod
+    def from_endowment(cls, endowment: Endowment, name=None):
+        good_x = endowment.good_x
+        good_y = endowment.good_y
+        income = endowment.income
+        return cls(good_x, good_y, income, name)
 
     def get_line(self, width=2):
         data = pd.DataFrame(columns=['x_values', 'y_values'])

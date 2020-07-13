@@ -85,24 +85,54 @@ class Endowment:
 
 
 class Budget:
-    def __init__(self, good_x, good_y, income, name=None):
+    def __init__(
+            self,
+            good_x,
+            good_y,
+            income,
+            name=None,
+            endowment=None
+    ):
         self.good_x = good_x
         self.good_y = good_y
         self.income = income
         self.x_lim = self.income / (min(self.good_x.adjusted_price, self.good_x.price)) * 1.2
         self.y_lim = self.income / (min(self.good_y.adjusted_price, self.good_y.price)) * 1.2
         self.name = name
+        self.endowment = endowment
 
     @classmethod
-    def from_bundle(cls, good_x, good_y, income, name=None):
-        return cls(good_x, good_y, income, name)
+    def from_bundle(
+            cls,
+            good_x,
+            good_y,
+            income,
+            name=None
+    ):
+        return cls(
+            good_x,
+            good_y,
+            income,
+            name
+        )
 
     @classmethod
-    def from_endowment(cls, endowment: Endowment, name=None):
+    def from_endowment(
+            cls,
+            endowment: Endowment,
+            name=None
+    ):
         good_x = endowment.good_x
         good_y = endowment.good_y
         income = endowment.income
-        return cls(good_x, good_y, income, name)
+
+        return cls(
+            good_x,
+            good_y,
+            income,
+            name,
+            endowment
+        )
 
     def get_line(self, width=2):
         data = pd.DataFrame(columns=['x_values', 'y_values'])

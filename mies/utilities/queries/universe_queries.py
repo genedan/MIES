@@ -23,6 +23,9 @@ from mies.utilities.queries.bank_queries import (
 
 
 def query_all_policies():
+    """
+    returns all policies across all insurers
+    """
     companies = query_company()
     policies = pd.DataFrame()
 
@@ -44,6 +47,9 @@ def query_all_policies():
 
 
 def query_bank_id(bank_name):
+    """
+    takes a bank name and returns the id of that bank
+    """
     session, connection = connect_universe()
     id_query = session.query(BankTable.bank_id).filter(BankTable.bank_name == bank_name).statement
     bank_id = pd.read_sql(id_query, connection).iat[0, 0]
@@ -52,6 +58,9 @@ def query_bank_id(bank_name):
 
 
 def query_banks():
+    """
+    returns the bank table from universe db
+    """
     session, connection = connect_universe()
     banks_query = session.query(BankTable).statement
     banks = pd.read_sql(
@@ -63,6 +72,9 @@ def query_banks():
 
 
 def query_company():
+    """
+    returns the company table from universe db
+    """
     session, connection = connect_universe()
     companies_query = session.query(Company).statement
     companies = pd.read_sql(
@@ -74,6 +86,9 @@ def query_company():
 
 
 def get_company_ids():
+    """
+    returns a list of insurance company ids
+    """
     session, connection = connect_universe()
     companies_query = session.query(Company.company_id).statement
     companies = pd.read_sql(companies_query, connection)
@@ -82,6 +97,9 @@ def get_company_ids():
 
 
 def get_company_names():
+    """
+    return company names
+    """
     session, connection = connect_universe()
     companies_query = session.query(Company.company_name).statement
     companies = pd.read_sql(
@@ -93,6 +111,10 @@ def get_company_names():
 
 
 def query_in_force_policies(curr_date):
+    """
+    take a date and returns all policies that are in force on that date,
+    across all insurers
+    """
     companies = get_company_names()
     in_force = pd.DataFrame()
 
@@ -119,6 +141,9 @@ def query_in_force_policies(curr_date):
 
 
 def query_incomes(person_ids):
+    """
+    takes a list of person ids and returns the incomes for each person
+    """
     session, connection = connect_universe()
 
     income_query = session.query(
@@ -139,6 +164,9 @@ def query_incomes(person_ids):
 
 
 def query_person(person_id):
+    """
+    returns the person table filtered on one person in universe db
+    """
     session, connection = connect_universe()
     person_query = session.query(PersonTable).filter(PersonTable.person_id == person_id).statement
     person = pd.read_sql(person_query, connection)
@@ -240,12 +268,18 @@ def query_person_wealth(person_id):
 
 
 def query_policy_history(person_id):
+    """
+    takes a person id and returns all policies that person had
+    """
     policies = query_all_policies()
     policies = policies[policies['person_id'] == person_id]
     return policies
 
 
 def query_population():
+    """
+    return the person table from universe db
+    """
     session, connection = connect_universe()
     query = session.query(PersonTable).statement
     population = pd.read_sql(query, connection)
@@ -354,6 +388,9 @@ def query_population_wealth():
 
 
 def get_uninsured_ids(curr_date):
+    """
+    takes a date and returns all person ids for people who are not insured on that date
+    """
     population = query_population()
     in_force = query_in_force_policies(curr_date)
     uninsureds = population[~population['person_id'].isin(in_force['person_id'])]['person_id']

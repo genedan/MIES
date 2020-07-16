@@ -10,7 +10,12 @@ class CobbDouglas:
         self.c = c
         self.d = d
 
-    def optimal_bundle(self, p1, p2, m):
+    def optimal_bundle(
+            self,
+            p1,
+            p2,
+            m
+    ):
         x1_quantity = (self.c / (self.c + self.d)) * (m / p1)
         x2_quantity = (self.d / (self.c + self.d)) * (m / p2)
 
@@ -18,7 +23,14 @@ class CobbDouglas:
 
         return x1_quantity, x2_quantity, optimal_utility
 
-    def trace(self, k, m, name=None, width=2):
+    def trace(
+            self,
+            k,
+            m,
+            name=None,
+            width=2
+    ):
+
         x_values = np.arange(.01, m * 1.5, .01)
         y_values = (k/(x_values ** self.c)) ** (1/self.d)
         if name is None:
@@ -32,7 +44,11 @@ class CobbDouglas:
                     'width': width
                 }}
 
-    def show_plot(self, k=5, m=10):
+    def show_plot(
+            self,
+            k=5,
+            m=10
+    ):
         fig = go.Figure(data=self.trace(k, m))
         fig.add_trace(self.trace(k * 1.5, m))
         fig.add_trace(self.trace(k * .5, m))

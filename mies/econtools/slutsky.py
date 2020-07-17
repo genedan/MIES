@@ -34,6 +34,7 @@ class Slutsky:
         self.substitution_effect = self.calculate_substitution_effect()
         self.new_bundle = self.calculate_new_bundle()
         self.income_effect = self.calculate_income_effect()
+        self.endowment_income_effect = self.calculate_endowment_income_effect()
         self.total_effect = self.substitution_effect + self.income_effect
         self.substitution_rate = self.calculate_substitution_rate()
         self.income_rate = self.calculate_income_rate()
@@ -83,6 +84,17 @@ class Slutsky:
     def calculate_income_effect(self):
         income_effect = self.new_bundle[0] - self.substitution_bundle[0]
         return income_effect
+
+    def calculate_endowment_income_bundle(self):
+        # only works if both old and new budget were defined with an endowment
+        if (self.old_budget.endowment is None) and (self.new_budget.endowment is None):
+            return 0
+
+    def calculate_endowment_income_effect(self):
+
+        # only works if both old and new budget were defined with an endowment
+        if (self.old_budget.endowment is None) and (self.new_budget.endowment is None):
+            return 0
 
     def calculate_substitution_rate(self):
         delta_s = self.calculate_substitution_effect()

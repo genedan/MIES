@@ -101,6 +101,9 @@ class Budget:
         self.name = name
         self.endowment = endowment
 
+        if endowment is not None:
+            self.__check_endowment_consistency()
+
     @classmethod
     def from_bundle(
             cls,
@@ -133,6 +136,36 @@ class Budget:
             name,
             endowment
         )
+
+    def __check_endowment_consistency(self):
+        # raise exception if endowment is not consistent with its components
+        if self.endowment.good_x != self.good_x:
+            raise Exception("Endowment good_x inconsistent with budget good_x. "
+                            "It is recommended to use the from_endowment alternative "
+                            "constructor when supplying an endowment")
+
+        if self.endowment.good_y != self.good_y:
+            raise Exception("Endowment good_y inconsistent with budget good_y. "
+                            "It is recommended to use the from_endowment alternative "
+                            "constructor when supplying an endowment")
+
+        if (self.endowment.income != (self.endowment.good_x_quantity * self.good_x.price +
+                                      self.endowment.good_y_quantity * self.good_y.price)) | \
+                (self.endowment.income != self.income):
+
+            raise Exception("Endowment income inconsistent with supplied good prices. "
+                            "It is recommended to use the from_endowment alternative "
+                            "constructor when supplying an endowment")
+
+        if self.endowment.good_x.price != self.good_x.price:
+            raise Exception("Endowment good_x price inconsistent with budget good_x price. "
+                            "It is recommended to use the from_endowment alternative "
+                            "constructor when supplying an endowment")
+
+        if self.endowment.good_y.price != self.good_y.price:
+            raise Exception("Endowment good_y price inconsistent with budget good_y price. "
+                            "It is recommended to use the from_endowment alternative "
+                            "constructor when supplying an endowment")
 
     def get_line(self, width=2):
         data = pd.DataFrame(columns=['x_values', 'y_values'])

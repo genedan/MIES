@@ -31,7 +31,7 @@ class CobbDouglas:
             width=2
     ):
 
-        x_values = np.arange(.01, m * 1.5, .01)
+        x_values = np.linspace(.01, m * 1.5, 1000)
         y_values = (k/(x_values ** self.c)) ** (1/self.d)
         if name is None:
             name = 'Utility: ' + str(int(round(k)))

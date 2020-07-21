@@ -16,6 +16,7 @@ class Slutsky:
             new_budget: Budget,
             utility_function: CobbDouglas  # need to replace with utility superclass
     ):
+        self.name = 'Slutsky'
         self.old_budget = old_budget
         self.old_budget.name = 'Old Budget'
         self.new_budget = new_budget
@@ -42,7 +43,7 @@ class Slutsky:
         self.substitution_rate = self.calculate_substitution_rate()
         self.income_rate = self.calculate_income_rate()
         self.slutsky_rate = self.substitution_rate - self.income_rate
-        self.plot = self.get_slutsky_plot()
+        self.plot = self.get_plot()
 
     def __toggle_endowment(self):
         """
@@ -146,7 +147,7 @@ class Slutsky:
         income_rate = delta_x1m / delta_m * self.old_bundle[0]
         return income_rate
 
-    def get_slutsky_plot(self):
+    def get_plot(self):
         max_x_int = max(
             self.old_budget.income / self.old_budget.good_x.price,
             self.old_budget.income / self.new_budget.good_x.price,
@@ -431,7 +432,7 @@ class Slutsky:
         )
 
         fig['layout'].update({
-            'title': 'Slutsky Decomposition',
+            'title': self.name + ' Decomposition',
             'title_x': 0.5,
             'xaxis': {
                 'title': 'Amount of Insurance',

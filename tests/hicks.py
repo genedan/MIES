@@ -1,17 +1,12 @@
 from econtools.budget import Budget, Good
-from econtools.hicks import Hicks
+from econtools.hicks import Hicks, Slutsky
 from entities.person import Person
 
 my_person = Person(1)
 
-my_person.data
-
 my_person.get_policy_history()
-my_person.policy_history
-my_person.get_policy('company_1', 1)
 
-my_person.policy
-my_person.premium
+my_person.get_policy('company_1', 1)
 
 my_person.get_budget()
 

@@ -99,7 +99,7 @@ class Intertemporal(Endowment):
             good_y: Good,
             good_x_quantity: float,
             good_y_quantity: float,
-            interest_rate: float
+            interest_rate: float = 0
             ):
         Endowment.__init__(
             self,
@@ -109,6 +109,7 @@ class Intertemporal(Endowment):
             good_y_quantity,
         )
         self.interest_rate = interest_rate
+        self.good_y.interest_rate = self.interest_rate
 
 
 class Budget:
@@ -176,8 +177,8 @@ class Budget:
                             "It is recommended to use the from_endowment alternative "
                             "constructor when supplying an endowment")
 
-        if (self.endowment.income != (self.endowment.good_x_quantity * self.good_x.price +
-                                      self.endowment.good_y_quantity * self.good_y.price)) | \
+        if (self.endowment.income != (self.endowment.good_x_quantity * self.good_x.adjusted_price +
+                                      self.endowment.good_y_quantity * self.good_y.adjusted_price)) | \
                 (self.endowment.income != self.income):
 
             raise Exception("Endowment income inconsistent with supplied good prices. "

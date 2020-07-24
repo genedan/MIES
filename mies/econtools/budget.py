@@ -33,7 +33,8 @@ class Good:
         self.price = price
         self.tax = tax
         self.subsidy = subsidy
-        self.interest_rate = None
+        self.interest_rate = 0
+        self.inflation_rate = 0
 
         if ration is None:
             self.ration = np.Inf
@@ -46,7 +47,13 @@ class Good:
         adjusted_price = self.apply_tax(self.price)
         adjusted_price = self.apply_subsidy(adjusted_price)
         adjusted_price = self.apply_discount(adjusted_price)
+        adjusted_price = self.apply_inflatino(adjusted_price)
         return adjusted_price
+
+    @property
+    def real_interest_rate(self):
+        real_interest_rate = (1 + self.interest_rate) / (1 + self.inflation_rate) - 1
+        return real_interest_rate
 
     def apply_tax(self, price):
         if (self.tax is None) or (self.tax.style == 'lump_sum'):
@@ -67,10 +74,10 @@ class Good:
             return price * (1 - self.subsidy.amount)
 
     def apply_discount(self, price):
-        if self.interest_rate is None:
-            return price
-        else:
-            return price / (1 + self.interest_rate)
+        return price / (1 + self.interest_rate)
+
+    def apply_inflation(self, price):
+        return price * (1 + self.inflation_rate)
 
 
 class Endowment:
@@ -99,7 +106,8 @@ class Intertemporal(Endowment):
             good_y: Good,
             good_x_quantity: float,
             good_y_quantity: float,
-            interest_rate: float = 0
+            interest_rate: float = 0,
+            inflation_rate: float =0
             ):
         Endowment.__init__(
             self,

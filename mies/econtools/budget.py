@@ -47,7 +47,7 @@ class Good:
         adjusted_price = self.apply_tax(self.price)
         adjusted_price = self.apply_subsidy(adjusted_price)
         adjusted_price = self.apply_discount(adjusted_price)
-        adjusted_price = self.apply_inflatino(adjusted_price)
+        adjusted_price = self.apply_inflation(adjusted_price)
         return adjusted_price
 
     @property

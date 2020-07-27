@@ -107,7 +107,7 @@ class Intertemporal(Endowment):
             good_x_quantity: float,
             good_y_quantity: float,
             interest_rate: float = 0,
-            inflation_rate: float =0
+            inflation_rate: float = 0
             ):
         Endowment.__init__(
             self,
@@ -117,7 +117,9 @@ class Intertemporal(Endowment):
             good_y_quantity,
         )
         self.interest_rate = interest_rate
+        self.inflation_rate = inflation_rate
         self.good_y.interest_rate = self.interest_rate
+        self.good_y.inflation_rate = self.inflation_rate
 
 
 class Budget:

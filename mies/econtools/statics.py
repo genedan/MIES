@@ -5,6 +5,8 @@ from plotly.offline import plot
 
 from econtools.budget import Budget
 from econtools.utility import CobbDouglas
+from econtools.hicks import Hicks
+from econtools.slutsky import Slutsky
 
 
 class Consumption:
@@ -18,6 +20,8 @@ class Consumption:
         self.utility = utility
         self.optimal_bundle = self.get_consumption()
         self.fig = self.get_consumption_figure()
+        self.slutsky = None
+        self.hicks = None
 
     def get_consumption(self):
         optimal_bundle = self.utility.optimal_bundle(
@@ -60,6 +64,28 @@ class Consumption:
         })
 
         return fig
+
+    def calculate_slutsky(self, new_budget):
+        self.slutsky = Slutsky(
+            old_budget=self.budget,
+            new_budget=new_budget,
+            utility_function=self.utility
+        )
+        self.slutsky.plot['layout'].update({
+            'title': 'Slutsky Decomposition'
+        })
+        self.slutsky.plot['layout'].update({'title_x': 0.5})
+
+    def calculate_hicks(self, new_budget):
+        self.hicks = Hicks(
+            old_budget=self.budget,
+            new_budget=new_budget,
+            utility_function=self.utility
+        )
+        self.hicks.plot['layout'].update({
+            'title': 'Hicks Decomposition'
+        })
+        self.hicks.plot['layout'].update({'title_x': 0.5})
 
     def show_consumption(self):
         plot(self.fig)
